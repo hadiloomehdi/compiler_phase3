@@ -1,4 +1,7 @@
 package toorla.typeCheck.compileErrorException;
 
-public class ReturnType {
+import toorla.CompileErrorException;
+
+public class ReturnType extends CompileErrorException {
+    private String
 }
