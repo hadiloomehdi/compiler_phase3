@@ -26,8 +26,14 @@ import toorla.symbolTable.symbolTableItem.ClassSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.MethodSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.FieldSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.LocalVariableSymbolTableItem;
+import toorla.typeCheck.compileErrorException.ConditionNotBoolean;
+import toorla.typeCheck.compileErrorException.PrintArg;
+import toorla.typeCheck.compileErrorException.UnsupportOperand;
 import toorla.types.Type;
+import toorla.types.arrayType.ArrayType;
+import toorla.types.singleType.SingleType;
 import toorla.visitor.Visitor;
+import toorla.types.singleType.*;
 
 import java.util.ArrayList;
 
@@ -40,14 +46,20 @@ public class typeCheck implements Visitor<Void> {
 
     @Override
     public Void visit(PrintLine printLine) {
-        printLine.getArg().accept(this);
+        Type type =  printLine.getArg().accept(this);
+
+        if(!(type instanceof ArrayType) && !(type instanceof IntType) && !(type instanceof StringType)){
+            PrintArg ee = new PrintArg(printLine.line,printLine.col);
+            printLine.relatedErrors.add(ee);
+        }
         return null;
     }
 
     @Override
     public Void visit(Assign assign) {
-        assign.getLvalue().accept(this);
-        assign.getRvalue().accept(this);
+        Type lValue = assign.getLvalue().accept(this);
+        Type rValue = assign.getRvalue().accept(this);
+
         return null;
     }
 
@@ -60,7 +72,11 @@ public class typeCheck implements Visitor<Void> {
 
     @Override
     public Void visit(Conditional conditional) {
-        conditional.getCondition().accept(this);
+        Type cond = conditional.getCondition().accept(this);
+        if (!(cond instanceof BoolType)){
+            ConditionNotBoolean ee = new ConditionNotBoolean("Conditional",conditional.line,conditional.col);
+            conditional.relatedErrors.add(ee);
+        }
         conditional.getThenStatement().accept(this);
         conditional.getElseStatement().accept(this);
         return null;
@@ -68,7 +84,11 @@ public class typeCheck implements Visitor<Void> {
 
     @Override
     public Void visit(While whileStat) {
-        whileStat.expr.accept(this);
+        Type cond = whileStat.expr.accept(this);
+        if (!(cond instanceof BoolType)){
+            ConditionNotBoolean ee = new ConditionNotBoolean("Loop",whileStat.line,whileStat.col);
+            whileStat.relatedErrors.add(ee);
+        }
         whileStat.body.accept(this);
         return null;
     }
@@ -81,71 +101,111 @@ public class typeCheck implements Visitor<Void> {
 
     @Override
     public Void visit(Plus plusExpr) {
-        plusExpr.getLhs().accept(this);
-        plusExpr.getRhs().accept(this);
+        Type lValue = plusExpr.getLhs().accept(this);
+        Type rValue = plusExpr.getRhs().accept(this);
+        if(rValue.toString() != lValue.toString()){
+            UnsupportOperand ee = new UnsupportOperand("+",plusExpr.line,plusExpr.col);
+            plusExpr.relatedErrors.add(ee);
+        }
         return null;
     }
 
     @Override
     public Void visit(Minus minusExpr) {
-        minusExpr.getLhs().accept(this);
-        minusExpr.getRhs().accept(this);
+        Type lValue = minusExpr.getLhs().accept(this);
+        Type rValue = minusExpr.getRhs().accept(this);
+        if(rValue.toString() != lValue.toString()){
+            UnsupportOperand ee = new UnsupportOperand("-",minusExpr.line,minusExpr.col);
+            minusExpr.relatedErrors.add(ee);
+        }
         return null;
     }
 
     @Override
     public Void visit(Times timesExpr) {
-        timesExpr.getLhs().accept(this);
-        timesExpr.getRhs().accept(this);
+        Type lValue = timesExpr.getLhs().accept(this);
+        Type rValue = timesExpr.getRhs().accept(this);
+        if(rValue.toString() != lValue.toString()){
+            UnsupportOperand ee = new UnsupportOperand("*",timesExpr.line,timesExpr.col);
+            timesExpr.relatedErrors.add(ee);
+        }
         return null;
     }
 
     @Override
     public Void visit(Division divisionExpr) {
-        divisionExpr.getLhs().accept(this);
-        divisionExpr.getRhs().accept(this);
+        Type lValue = divisionExpr.getLhs().accept(this);
+        Type rValue = divisionExpr.getRhs().accept(this);
+        if(rValue.toString() != lValue.toString()){
+            UnsupportOperand ee = new UnsupportOperand("/",divisionExpr.line,divisionExpr.col);
+            divisionExpr.relatedErrors.add(ee);
+        }
         return null;
     }
 
     @Override
     public Void visit(Modulo moduloExpr) {
-        moduloExpr.getLhs().accept(this);
-        moduloExpr.getRhs().accept(this);
+        Type lValue = moduloExpr.getLhs().accept(this);
+        Type rValue = moduloExpr.getRhs().accept(this);
+        if(rValue.toString() != lValue.toString()){
+            UnsupportOperand ee = new UnsupportOperand("%",moduloExpr.line,moduloExpr.col);
+            moduloExpr.relatedErrors.add(ee);
+        }
         return null;
     }
 
     @Override
     public Void visit(Equals equalsExpr) {
-        equalsExpr.getLhs().accept(this);
-        equalsExpr.getRhs().accept(this);
+        Type lValue = equalsExpr.getLhs().accept(this);
+        Type rValue = equalsExpr.getRhs().accept(this);
+        if(rValue.toString() != lValue.toString()){
+            UnsupportOperand ee = new UnsupportOperand("=",equalsExpr.line,equalsExpr.col);
+            equalsExpr.relatedErrors.add(ee);
+        }
         return null;
     }
 
     @Override
     public Void visit(GreaterThan gtExpr) {
-        gtExpr.getLhs().accept(this);
-        gtExpr.getRhs().accept(this);
+        Type lValue = gtExpr.getLhs().accept(this);
+        Type rValue = gtExpr.getRhs().accept(this);
+        if(rValue.toString() != lValue.toString()){
+            UnsupportOperand ee = new UnsupportOperand("=",equalsExpr.line,equalsExpr.col);
+            equalsExpr.relatedErrors.add(ee);
+        }
         return null;
     }
 
     @Override
     public Void visit(LessThan ltExpr) {
-        ltExpr.getLhs().accept(this);
-        ltExpr.getRhs().accept(this);
+        Type lValue = ltExpr.getLhs().accept(this);
+        Type rValue = ltExpr.getRhs().accept(this);
+        if(rValue.toString() != lValue.toString()){
+            UnsupportOperand ee = new UnsupportOperand("=",equalsExpr.line,equalsExpr.col);
+            equalsExpr.relatedErrors.add(ee);
+        }
         return null;
     }
 
     @Override
     public Void visit(And andExpr) {
-        andExpr.getLhs().accept(this);
-        andExpr.getRhs().accept(this);
+        Type lValue = andExpr.getLhs().accept(this);
+        Type rValue = andExpr.getRhs().accept(this);
+        if(rValue.toString() != lValue.toString()){
+            UnsupportOperand ee = new UnsupportOperand("=",equalsExpr.line,equalsExpr.col);
+            equalsExpr.relatedErrors.add(ee);
+        }
         return null;
     }
 
     @Override
     public Void visit(Or orExpr) {
-        orExpr.getLhs().accept(this);
-        orExpr.getRhs().accept(this);
+        Type lValue = orExpr.getLhs().accept(this);
+        Type rValue = orExpr.getRhs().accept(this);
+        if(rValue.toString() != lValue.toString()){
+            UnsupportOperand ee = new UnsupportOperand("=",equalsExpr.line,equalsExpr.col);
+            equalsExpr.relatedErrors.add(ee);
+        }
         return null;
     }
 
