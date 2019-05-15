@@ -103,7 +103,7 @@ public class typeCheck implements Visitor<Void> {
     public Void visit(Plus plusExpr) {
         Type lValue = plusExpr.getLhs().accept(this);
         Type rValue = plusExpr.getRhs().accept(this);
-        if((rValue instanceof IntType) && (lValue instanceof IntType)){
+        if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand("+",plusExpr.line,plusExpr.col);
             plusExpr.relatedErrors.add(ee);
         }
@@ -114,7 +114,7 @@ public class typeCheck implements Visitor<Void> {
     public Void visit(Minus minusExpr) {
         Type lValue = minusExpr.getLhs().accept(this);
         Type rValue = minusExpr.getRhs().accept(this);
-        if((rValue instanceof IntType) && (lValue instanceof IntType)){
+        if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand("-",minusExpr.line,minusExpr.col);
             minusExpr.relatedErrors.add(ee);
         }
@@ -125,7 +125,7 @@ public class typeCheck implements Visitor<Void> {
     public Void visit(Times timesExpr) {
         Type lValue = timesExpr.getLhs().accept(this);
         Type rValue = timesExpr.getRhs().accept(this);
-        if((rValue instanceof IntType ) && (lValue instanceof IntType)){
+        if(!(rValue instanceof IntType ) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand("*",timesExpr.line,timesExpr.col);
             timesExpr.relatedErrors.add(ee);
         }
@@ -136,7 +136,7 @@ public class typeCheck implements Visitor<Void> {
     public Void visit(Division divisionExpr) {
         Type lValue = divisionExpr.getLhs().accept(this);
         Type rValue = divisionExpr.getRhs().accept(this);
-        if((rValue instanceof IntType ) && (lValue instanceof IntType)){
+        if(!(rValue instanceof IntType ) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand("/",divisionExpr.line,divisionExpr.col);
             divisionExpr.relatedErrors.add(ee);
         }
@@ -147,7 +147,7 @@ public class typeCheck implements Visitor<Void> {
     public Void visit(Modulo moduloExpr) {
         Type lValue = moduloExpr.getLhs().accept(this);
         Type rValue = moduloExpr.getRhs().accept(this);
-        if((rValue instanceof IntType) && (lValue instanceof IntType)){
+        if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand("%",moduloExpr.line,moduloExpr.col);
             moduloExpr.relatedErrors.add(ee);
         }
@@ -169,7 +169,7 @@ public class typeCheck implements Visitor<Void> {
     public Void visit(GreaterThan gtExpr) {
         Type lValue = gtExpr.getLhs().accept(this);
         Type rValue = gtExpr.getRhs().accept(this);
-        if((rValue instanceof IntType) && (lValue instanceof IntType)){
+        if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(">",gtExpr.line,gtExpr.col);
             gtExpr.relatedErrors.add(ee);
         }
@@ -180,7 +180,7 @@ public class typeCheck implements Visitor<Void> {
     public Void visit(LessThan ltExpr) {
         Type lValue = ltExpr.getLhs().accept(this);
         Type rValue = ltExpr.getRhs().accept(this);
-        if((rValue instanceof IntType) && (lValue instanceof IntType)){
+        if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand("<",ltExpr.line,ltExpr.col);
             ltExpr.relatedErrors.add(ee);
         }
@@ -191,7 +191,7 @@ public class typeCheck implements Visitor<Void> {
     public Void visit(And andExpr) {
         Type lValue = andExpr.getLhs().accept(this);
         Type rValue = andExpr.getRhs().accept(this);
-        if((rValue instanceof BoolType) && (lValue instanceof BoolType)){
+        if(!(rValue instanceof BoolType) && !(lValue instanceof BoolType)){
             UnsupportOperand ee = new UnsupportOperand("&&",andExpr.line,andExpr.col);
             andExpr.relatedErrors.add(ee);
         }
@@ -202,7 +202,7 @@ public class typeCheck implements Visitor<Void> {
     public Void visit(Or orExpr) {
         Type lValue = orExpr.getLhs().accept(this);
         Type rValue = orExpr.getRhs().accept(this);
-        if((rValue instanceof BoolType) && (lValue instanceof BoolType)){
+        if(!(rValue instanceof BoolType) && !(lValue instanceof BoolType)){
             UnsupportOperand ee = new UnsupportOperand("||",orExpr.line,orExpr.col);
             orExpr.relatedErrors.add(ee);
         }
