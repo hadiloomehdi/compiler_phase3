@@ -1,5 +1,6 @@
 package toorla.nameAnalyzer.compileErrorException;
 
+import toorla.CompileErrorException;
 import toorla.ast.declaration.classDecs.ClassDeclaration;
 import toorla.ast.expression.Identifier;
 import toorla.symbolTable.SymbolTable;

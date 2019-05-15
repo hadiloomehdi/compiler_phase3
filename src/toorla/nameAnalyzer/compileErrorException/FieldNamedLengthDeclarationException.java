@@ -1,5 +1,7 @@
 package toorla.nameAnalyzer.compileErrorException;
 
+import toorla.CompileErrorException;
+
 public class FieldNamedLengthDeclarationException extends CompileErrorException {
     public FieldNamedLengthDeclarationException(int atLine, int atColumn) {
         super(atLine, atColumn);

@@ -18,7 +18,7 @@ import toorla.ast.statement.*;
 import toorla.ast.statement.localVarStats.LocalVarDef;
 import toorla.ast.statement.localVarStats.LocalVarsDefinitions;
 import toorla.ast.statement.returnStatement.Return;
-import toorla.nameAnalyzer.compileErrorException.CompileErrorException;
+import toorla.CompileErrorException;
 import toorla.visitor.Visitor;
 
 public class ReportingPass implements Visitor<Integer>, INameAnalyzingPass<Void> {

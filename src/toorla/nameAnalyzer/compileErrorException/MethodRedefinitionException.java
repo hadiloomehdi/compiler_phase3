@@ -1,5 +1,7 @@
 package toorla.nameAnalyzer.compileErrorException;
 
+import toorla.CompileErrorException;
+
 public class MethodRedefinitionException extends CompileErrorException {
     String methodName;
 

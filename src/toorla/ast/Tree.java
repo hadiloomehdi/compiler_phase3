@@ -1,6 +1,6 @@
 package toorla.ast;
 
-import toorla.nameAnalyzer.compileErrorException.CompileErrorException;
+import toorla.CompileErrorException;
 import toorla.visitor.Visitor;
 
 import java.util.ArrayList;

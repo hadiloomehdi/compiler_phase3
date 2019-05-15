@@ -1,8 +1,8 @@
-package toorla.nameAnalyzer.compileErrorException;
+package toorla;
 
 public abstract class CompileErrorException extends Exception {
-    int atLine;
-    int atColumn;
+    protected int atLine;
+    protected int atColumn;
 
     public CompileErrorException(int atLine, int atColumn) {
         this.atLine = atLine;

@@ -32,6 +32,11 @@ import toorla.visitor.Visitor;
 import java.util.ArrayList;
 
 public class typeCheck implements Visitor<Void> {
+    private boolean inFunc;
+
+    public typeCheck() {
+        inFunc = false;
+    }
 
     @Override
     public Void visit(PrintLine printLine) {
@@ -168,6 +173,7 @@ public class typeCheck implements Visitor<Void> {
 
     @Override
     public Void visit(Identifier identifier) {
+
         return null;
     }
 
@@ -260,11 +266,11 @@ public class typeCheck implements Visitor<Void> {
 
     @Override
     public Void visit(ClassDeclaration classDeclaration) {
-        printClassBody(classDeclaration);
+        visitClassBody(classDeclaration);
         return null;
     }
 
-    private void printClassBody(ClassDeclaration classDeclaration) {
+    private void visitClassBody(ClassDeclaration classDeclaration) {
         classDeclaration.getName().accept(this);
         if (classDeclaration.getParentName().getName() != null) {
             classDeclaration.getParentName().accept(this);
@@ -275,7 +281,7 @@ public class typeCheck implements Visitor<Void> {
 
     @Override
     public Void visit(EntryClassDeclaration entryClassDeclaration) {
-        printClassBody(entryClassDeclaration);
+        visitClassBody(entryClassDeclaration);
         return null;
     }
 
@@ -297,6 +303,7 @@ public class typeCheck implements Visitor<Void> {
         for (ParameterDeclaration pd : methodDeclaration.getArgs()) {
             pd.accept(this);
         }
+        inFunc = true;
         for (Statement stmt : methodDeclaration.getBody())
             stmt.accept(this);
         return null;
