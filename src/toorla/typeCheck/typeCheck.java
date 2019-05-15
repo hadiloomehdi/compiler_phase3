@@ -74,7 +74,7 @@ public class typeCheck implements Visitor<Void> {
     public Void visit(Conditional conditional) {
         Type cond = conditional.getCondition().accept(this);
         if (!(cond instanceof BoolType)){
-            ConditionNotBoolean ee = new ConditionNotBoolean("Conditional",conditional.line,conditional.col);
+            ConditionNotBoolean ee = new ConditionNotBoolean(conditional.toString(),conditional.line,conditional.col);
             conditional.relatedErrors.add(ee);
         }
         conditional.getThenStatement().accept(this);
@@ -86,7 +86,7 @@ public class typeCheck implements Visitor<Void> {
     public Void visit(While whileStat) {
         Type cond = whileStat.expr.accept(this);
         if (!(cond instanceof BoolType)){
-            ConditionNotBoolean ee = new ConditionNotBoolean("Loop",whileStat.line,whileStat.col);
+            ConditionNotBoolean ee = new ConditionNotBoolean(whileStat.toString(),whileStat.line,whileStat.col);
             whileStat.relatedErrors.add(ee);
         }
         whileStat.body.accept(this);
@@ -104,7 +104,7 @@ public class typeCheck implements Visitor<Void> {
         Type lValue = plusExpr.getLhs().accept(this);
         Type rValue = plusExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
-            UnsupportOperand ee = new UnsupportOperand("+",plusExpr.line,plusExpr.col);
+            UnsupportOperand ee = new UnsupportOperand(plusExpr.toString(),plusExpr.line,plusExpr.col);
             plusExpr.relatedErrors.add(ee);
         }
         return null;
@@ -115,7 +115,7 @@ public class typeCheck implements Visitor<Void> {
         Type lValue = minusExpr.getLhs().accept(this);
         Type rValue = minusExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
-            UnsupportOperand ee = new UnsupportOperand("-",minusExpr.line,minusExpr.col);
+            UnsupportOperand ee = new UnsupportOperand(minusExpr.toString(),minusExpr.line,minusExpr.col);
             minusExpr.relatedErrors.add(ee);
         }
         return null;
@@ -126,7 +126,7 @@ public class typeCheck implements Visitor<Void> {
         Type lValue = timesExpr.getLhs().accept(this);
         Type rValue = timesExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType ) && !(lValue instanceof IntType)){
-            UnsupportOperand ee = new UnsupportOperand("*",timesExpr.line,timesExpr.col);
+            UnsupportOperand ee = new UnsupportOperand(timesExpr.toString(),timesExpr.line,timesExpr.col);
             timesExpr.relatedErrors.add(ee);
         }
         return null;
@@ -137,7 +137,7 @@ public class typeCheck implements Visitor<Void> {
         Type lValue = divisionExpr.getLhs().accept(this);
         Type rValue = divisionExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType ) && !(lValue instanceof IntType)){
-            UnsupportOperand ee = new UnsupportOperand("/",divisionExpr.line,divisionExpr.col);
+            UnsupportOperand ee = new UnsupportOperand(divisionExpr.toString(),divisionExpr.line,divisionExpr.col);
             divisionExpr.relatedErrors.add(ee);
         }
         return null;
@@ -148,7 +148,7 @@ public class typeCheck implements Visitor<Void> {
         Type lValue = moduloExpr.getLhs().accept(this);
         Type rValue = moduloExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
-            UnsupportOperand ee = new UnsupportOperand("%",moduloExpr.line,moduloExpr.col);
+            UnsupportOperand ee = new UnsupportOperand(moduloExpr.toString(),moduloExpr.line,moduloExpr.col);
             moduloExpr.relatedErrors.add(ee);
         }
         return null;
@@ -159,7 +159,7 @@ public class typeCheck implements Visitor<Void> {
         Type lValue = equalsExpr.getLhs().accept(this);
         Type rValue = equalsExpr.getRhs().accept(this);
         if(rValue.toString() != lValue.toString()){
-            UnsupportOperand ee = new UnsupportOperand("==",equalsExpr.line,equalsExpr.col);
+            UnsupportOperand ee = new UnsupportOperand(equalsExpr.toString(),equalsExpr.line,equalsExpr.col);
             equalsExpr.relatedErrors.add(ee);
         }
         return null;
@@ -170,7 +170,7 @@ public class typeCheck implements Visitor<Void> {
         Type lValue = gtExpr.getLhs().accept(this);
         Type rValue = gtExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
-            UnsupportOperand ee = new UnsupportOperand(">",gtExpr.line,gtExpr.col);
+            UnsupportOperand ee = new UnsupportOperand(gtExpr.toString(),gtExpr.line,gtExpr.col);
             gtExpr.relatedErrors.add(ee);
         }
         return null;
@@ -181,7 +181,7 @@ public class typeCheck implements Visitor<Void> {
         Type lValue = ltExpr.getLhs().accept(this);
         Type rValue = ltExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
-            UnsupportOperand ee = new UnsupportOperand("<",ltExpr.line,ltExpr.col);
+            UnsupportOperand ee = new UnsupportOperand(ltExpr.toString(),ltExpr.line,ltExpr.col);
             ltExpr.relatedErrors.add(ee);
         }
         return null;
@@ -192,7 +192,7 @@ public class typeCheck implements Visitor<Void> {
         Type lValue = andExpr.getLhs().accept(this);
         Type rValue = andExpr.getRhs().accept(this);
         if(!(rValue instanceof BoolType) && !(lValue instanceof BoolType)){
-            UnsupportOperand ee = new UnsupportOperand("&&",andExpr.line,andExpr.col);
+            UnsupportOperand ee = new UnsupportOperand(andExpr.toString(),andExpr.line,andExpr.col);
             andExpr.relatedErrors.add(ee);
         }
         return null;
@@ -203,7 +203,7 @@ public class typeCheck implements Visitor<Void> {
         Type lValue = orExpr.getLhs().accept(this);
         Type rValue = orExpr.getRhs().accept(this);
         if(!(rValue instanceof BoolType) && !(lValue instanceof BoolType)){
-            UnsupportOperand ee = new UnsupportOperand("||",orExpr.line,orExpr.col);
+            UnsupportOperand ee = new UnsupportOperand(orExpr.toString(),orExpr.line,orExpr.col);
             orExpr.relatedErrors.add(ee);
         }
         return null;
