@@ -29,6 +29,7 @@ import toorla.symbolTable.symbolTableItem.ClassSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.MethodSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.FieldSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.LocalVariableSymbolTableItem;
+import toorla.symbolTable.symbolTableItem.varItems.VarSymbolTableItem;
 import toorla.typeCheck.compileErrorException.*;
 import toorla.types.Type;
 import toorla.types.UndefinedType;
@@ -385,7 +386,13 @@ public class typeCheck implements Visitor<Type> {
     @Override
     public Type visit(LocalVarDef localVarDef) {
         localVarDef.getLocalVarName().accept(this);
-        localVarDef.getInitialValue().accept(this);
+        Type type = localVarDef.getInitialValue().accept(this);
+        try{
+            LocalVariableSymbolTableItem localVarSybmbolTable =  (LocalVariableSymbolTableItem)SymbolTable.top().get(VarSymbolTableItem.var_modifier + localVarDef.getLocalVarName().getName());
+            localVarSybmbolTable.setVarType(type);
+        }catch (Exception e){
+
+        }
         return null;
     }
 
