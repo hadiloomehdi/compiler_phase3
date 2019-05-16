@@ -27,6 +27,7 @@ import toorla.symbolTable.exceptions.ItemAlreadyExistsException;
 import toorla.symbolTable.exceptions.ItemNotFoundException;
 import toorla.symbolTable.symbolTableItem.ClassSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.MethodSymbolTableItem;
+import toorla.symbolTable.symbolTableItem.SymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.FieldSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.LocalVariableSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.VarSymbolTableItem;
@@ -43,7 +44,7 @@ import java.util.ArrayList;
 public class typeCheck implements Visitor<Type> {
     private boolean inFunc;
     private Integer loopDep;
-
+    private Integer numVar;
     public typeCheck() {
         inFunc = false;
     }
@@ -287,6 +288,24 @@ public class typeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(Identifier identifier) {
+        try{
+            SymbolTableItem sti =  SymbolTable.top().get(identifier.getName());
+            if (sti instanceof FieldSymbolTableItem){
+                return ((FieldSymbolTableItem) sti).getVarType();
+            }
+            else if (sti instanceof LocalVariableSymbolTableItem){
+                LocalVariableSymbolTableItem LVST = (LocalVariableSymbolTableItem) sti;
+
+                if (LVST.getIndex() > numVar){
+                    VariableNotDeclared ee = new VariableNotDeclared(identifier.getName(),identifier.line,identifier.col);
+                    identifier.relatedErrors.add(ee);
+                }
+                else
+                    return LVST.getVarType();
+            }
+        }catch(Exception e){
+
+        }
 
         return null;
     }
@@ -468,9 +487,11 @@ public class typeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(MethodDeclaration methodDeclaration) {
+        numVar =-1;
         methodDeclaration.getName().accept(this);
         for (ParameterDeclaration pd : methodDeclaration.getArgs()) {
             pd.accept(this);
+            numVar +=1;
         }
         inFunc = true;
         loopDep = 0;
