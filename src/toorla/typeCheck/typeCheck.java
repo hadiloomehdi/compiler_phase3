@@ -353,8 +353,12 @@ public class typeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(ArrayCall arrayCall) {
-        arrayCall.getInstance().accept(this);
-        arrayCall.getIndex().accept(this);
+        Type exprType = arrayCall.getInstance().accept(this);
+        Type indType = arrayCall.getIndex().accept(this);
+        if (!(exprType instanceof ArrayType && indType instanceof IntType)) {
+            UnsupportOperand exc = new UnsupportOperand(arrayCall.toString(), arrayCall.line, arrayCall.col);
+            arrayCall.relatedErrors.add(exc);
+        }
         return null;
     }
 
@@ -390,7 +394,6 @@ public class typeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(ClassDeclaration classDeclaration) {
-
         visitClassBody(classDeclaration);
         return null;
     }
@@ -398,6 +401,10 @@ public class typeCheck implements Visitor<Type> {
     private void visitClassBody(ClassDeclaration classDeclaration) {
         classDeclaration.getName().accept(this);
         if (classDeclaration.getParentName().getName() != null) {
+            if (!foundClass(classDeclaration, classDeclaration.getParentName().getName())) {
+                ClassNotDef exc = new ClassNotDef(classDeclaration.getParentName().getName(), classDeclaration.line, classDeclaration.col);
+                classDeclaration.relatedErrors.add(exc);
+            }
             classDeclaration.getParentName().accept(this);
         }
         for (ClassMemberDeclaration md : classDeclaration.getClassMembers())
