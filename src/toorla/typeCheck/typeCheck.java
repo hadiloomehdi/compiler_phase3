@@ -161,7 +161,7 @@ public class typeCheck implements Visitor<Type> {
         Type lValue = equalsExpr.getLhs().accept(this);
         Type rValue = equalsExpr.getRhs().accept(this);
         if(rValue.toString() != lValue.toString()){
-            UnsupportOperand ee = new UnsupportOperand(equalsExpr.toString(),equalsExpr.line,equalsExpr.col);
+            UnsupportOperand ee = new UnsupportOperand(equalsExpr.toString(),equalsExpr.line,equalsExpr.col);////array
             equalsExpr.relatedErrors.add(ee);
         }
         return null;
@@ -237,6 +237,7 @@ public class typeCheck implements Visitor<Type> {
             memberCall.relatedErrors.add(exc);
             return true;
         }
+        return false;
     }
 
     public Boolean foundClass(Tree node, String className) {
@@ -348,7 +349,6 @@ public class typeCheck implements Visitor<Type> {
             return new UndefinedType();
         else
             return methodType;
-        return null;
     }
 
     @Override
@@ -360,8 +360,12 @@ public class typeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(NotEquals notEquals) {
-        notEquals.getLhs().accept(this);
-        notEquals.getRhs().accept(this);
+        Type lValue = notEquals.getLhs().accept(this);
+        Type rValue = notEquals.getRhs().accept(this);
+        if(rValue.toString() != lValue.toString()){
+            UnsupportOperand ee = new UnsupportOperand(notEquals.toString(),notEquals.line,notEquals.col);
+            notEquals.relatedErrors.add(ee);
+        }
         return null;
     }
 
