@@ -5,7 +5,7 @@ import toorla.CompileErrorException;
 public class BreakContinue extends CompileErrorException {
     private String name;
 
-    BreakContinue(String BorC, int atLine, int atCol) {
+    public BreakContinue(String BorC, int atLine, int atCol) {
         super(atLine,atCol);
         name = BorC;
     }

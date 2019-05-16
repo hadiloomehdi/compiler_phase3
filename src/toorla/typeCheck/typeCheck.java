@@ -1,6 +1,7 @@
 package toorla.typeCheck;
 
 import toorla.ast.Program;
+import toorla.ast.Tree;
 import toorla.ast.declaration.classDecs.ClassDeclaration;
 import toorla.ast.declaration.classDecs.EntryClassDeclaration;
 import toorla.ast.declaration.classDecs.classMembersDecs.ClassMemberDeclaration;
@@ -22,14 +23,14 @@ import toorla.nameAnalyzer.INameAnalyzingPass;
 import toorla.nameAnalyzer.compileErrorException.*;
 import toorla.symbolTable.SymbolTable;
 import toorla.symbolTable.exceptions.ItemAlreadyExistsException;
+import toorla.symbolTable.exceptions.ItemNotFoundException;
 import toorla.symbolTable.symbolTableItem.ClassSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.MethodSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.FieldSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.LocalVariableSymbolTableItem;
-import toorla.typeCheck.compileErrorException.ConditionNotBoolean;
-import toorla.typeCheck.compileErrorException.PrintArg;
-import toorla.typeCheck.compileErrorException.UnsupportOperand;
+import toorla.typeCheck.compileErrorException.*;
 import toorla.types.Type;
+import toorla.types.UndefinedType;
 import toorla.types.arrayType.ArrayType;
 import toorla.types.singleType.SingleType;
 import toorla.visitor.Visitor;
@@ -37,15 +38,16 @@ import toorla.types.singleType.*;
 
 import java.util.ArrayList;
 
-public class typeCheck implements Visitor<Void> {
+public class typeCheck implements Visitor<Type> {
     private boolean inFunc;
+    private Integer loopDep;
 
     public typeCheck() {
         inFunc = false;
     }
 
     @Override
-    public Void visit(PrintLine printLine) {
+    public Type visit(PrintLine printLine) {
         Type type =  printLine.getArg().accept(this);
 
         if(!(type instanceof ArrayType) && !(type instanceof IntType) && !(type instanceof StringType)){ ///////array should be int
@@ -56,7 +58,7 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(Assign assign) {
+    public Type visit(Assign assign) {
         Type lValue = assign.getLvalue().accept(this);
         Type rValue = assign.getRvalue().accept(this);
 
@@ -64,14 +66,14 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(Block block) {
+    public Type visit(Block block) {
         for (Statement s : block.body)
             s.accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Conditional conditional) {
+    public Type visit(Conditional conditional) {
         Type cond = conditional.getCondition().accept(this);
         if (!(cond instanceof BoolType)){
             ConditionNotBoolean ee = new ConditionNotBoolean(conditional.toString(),conditional.line,conditional.col);
@@ -83,7 +85,7 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(While whileStat) {
+    public Type visit(While whileStat) {
         Type cond = whileStat.expr.accept(this);
         if (!(cond instanceof BoolType)){
             ConditionNotBoolean ee = new ConditionNotBoolean(whileStat.toString(),whileStat.line,whileStat.col);
@@ -94,13 +96,13 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(Return returnStat) {
+    public Type visit(Return returnStat) {
         returnStat.getReturnedExpr().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Plus plusExpr) {
+    public Type visit(Plus plusExpr) {
         Type lValue = plusExpr.getLhs().accept(this);
         Type rValue = plusExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
@@ -111,7 +113,7 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(Minus minusExpr) {
+    public Type visit(Minus minusExpr) {
         Type lValue = minusExpr.getLhs().accept(this);
         Type rValue = minusExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
@@ -122,7 +124,7 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(Times timesExpr) {
+    public Type visit(Times timesExpr) {
         Type lValue = timesExpr.getLhs().accept(this);
         Type rValue = timesExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType ) && !(lValue instanceof IntType)){
@@ -133,7 +135,7 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(Division divisionExpr) {
+    public Type visit(Division divisionExpr) {
         Type lValue = divisionExpr.getLhs().accept(this);
         Type rValue = divisionExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType ) && !(lValue instanceof IntType)){
@@ -144,7 +146,7 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(Modulo moduloExpr) {
+    public Type visit(Modulo moduloExpr) {
         Type lValue = moduloExpr.getLhs().accept(this);
         Type rValue = moduloExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
@@ -155,7 +157,7 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(Equals equalsExpr) {
+    public Type visit(Equals equalsExpr) {
         Type lValue = equalsExpr.getLhs().accept(this);
         Type rValue = equalsExpr.getRhs().accept(this);
         if(rValue.toString() != lValue.toString()){
@@ -166,7 +168,7 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(GreaterThan gtExpr) {
+    public Type visit(GreaterThan gtExpr) {
         Type lValue = gtExpr.getLhs().accept(this);
         Type rValue = gtExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
@@ -177,7 +179,7 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(LessThan ltExpr) {
+    public Type visit(LessThan ltExpr) {
         Type lValue = ltExpr.getLhs().accept(this);
         Type rValue = ltExpr.getRhs().accept(this);
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
@@ -188,7 +190,7 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(And andExpr) {
+    public Type visit(And andExpr) {
         Type lValue = andExpr.getLhs().accept(this);
         Type rValue = andExpr.getRhs().accept(this);
         if(!(rValue instanceof BoolType) && !(lValue instanceof BoolType)){
@@ -199,7 +201,7 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(Or orExpr) {
+    public Type visit(Or orExpr) {
         Type lValue = orExpr.getLhs().accept(this);
         Type rValue = orExpr.getRhs().accept(this);
         if(!(rValue instanceof BoolType) && !(lValue instanceof BoolType)){
@@ -210,122 +212,181 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(Neg negExpr) {
-        negExpr.getExpr().accept(this);
-        return null;
-    }
-
-    @Override
-    public Void visit(Not notExpr) {
-        notExpr.getExpr().accept(this);
-        return null;
-    }
-
-    @Override
-    public Void visit(MethodCall methodCall) {
-        methodCall.getInstance().accept(this);
-        methodCall.getMethodName().accept(this);
-        for (Expression arg : methodCall.getArgs()) {
-            arg.accept(this);
+    public Type visit(Neg negExpr) {
+        Type type = negExpr.getExpr().accept(this);
+        if (!(type instanceof IntType)) {
+            UnsupportOperand ee = new UnsupportOperand(negExpr.toString(),negExpr.line, negExpr.col);
+            negExpr.relatedErrors.add(ee);
         }
         return null;
     }
 
     @Override
-    public Void visit(Identifier identifier) {
+    public Type visit(Not notExpr) {
+        Type type = notExpr.getExpr().accept(this);
+        if (!(type instanceof BoolType)) {
+            UnsupportOperand ee = new UnsupportOperand(notExpr.toString(),notExpr.line, notExpr.col);
+            notExpr.relatedErrors.add(ee);
+        }
+        return null;
+    }
+
+    public Boolean objectIsValid(Expression memberCall, Type exprType, String memberName) {
+        if (!(exprType instanceof UserDefinedType || (exprType instanceof ArrayType && memberName.equals("length")))) {
+            UnsupportOperand exc = new UnsupportOperand(memberCall.toString(), memberCall.line, memberCall.col);
+            memberCall.relatedErrors.add(exc);
+            return true;
+        }
+    }
+
+    public Boolean foundClass(Tree node, String className) {
+        SymbolTable root = SymbolTable.root;
+        try {
+            root.get(className);
+        } catch (ItemNotFoundException excep) {
+            ClassNotDef exc = new ClassNotDef(className, node.line, node.col);
+            node.relatedErrors.add(exc);
+            return false;
+        }
+        return true;
+    }
+
+    public Boolean fieldMethodCallCheck(Expression memberCall, Type exprType, String memberName) {
+        if (!objectIsValid(memberCall, exprType, memberName))
+            return false;
+        else {
+            UserDefinedType exprUserType = (UserDefinedType)exprType;
+            return foundClass(memberCall, exprUserType.getClassDeclaration().getName().getName());
+        }
+    }
+
+    @Override
+    public Type visit(MethodCall methodCall) {
+        Type exprType = methodCall.getInstance().accept(this);
+        Boolean unDef = !fieldMethodCallCheck(methodCall, exprType, methodCall.getMethodName().getName());
+        Type methodType = methodCall.getMethodName().accept(this);
+        for (Expression arg : methodCall.getArgs()) {
+            arg.accept(this);
+        }
+        if (unDef)
+            return new UndefinedType();
+        else
+            return methodType;
+    }
+
+    @Override
+    public Type visit(Identifier identifier) {
 
         return null;
     }
 
     @Override
-    public Void visit(Self self) {
+    public Type visit(Self self) {
         return null;
     }
 
     @Override
-    public Void visit(Break breakStat) {
+    public Type visit(Break breakStat) {
+        if (inFunc && loopDep==0) {
+            BreakContinue exc = new BreakContinue(breakStat.toString(), breakStat.line, breakStat.col);
+            breakStat.relatedErrors.add(exc);
+        }
         return null;
     }
 
     @Override
-    public Void visit(Continue continueStat) {
+    public Type visit(Continue continueStat) {
+        if (inFunc && loopDep==0) {
+            BreakContinue exc = new BreakContinue(continueStat.toString(), continueStat.line, continueStat.col);
+            continueStat.relatedErrors.add(exc);
+        }
         return null;
     }
 
     @Override
-    public Void visit(Skip skip) {
+    public Type visit(Skip skip) {
         return null;
     }
 
     @Override
-    public Void visit(IntValue intValue) {
+    public Type visit(IntValue intValue) {
+        return new IntType();
+    }
+
+    @Override
+    public Type visit(NewArray newArray) {
+        Type type = newArray.getLength().accept(this);
+        if (!(type instanceof IntType)) {
+            ArraySize exc = new ArraySize(newArray.line, newArray.col);
+            newArray.relatedErrors.add(exc);
+        }
         return null;
     }
 
     @Override
-    public Void visit(NewArray newArray) {
-        newArray.getLength().accept(this);
-        return null;
+    public Type visit(BoolValue booleanValue) {
+        return new BoolType();
     }
 
     @Override
-    public Void visit(BoolValue booleanValue) {
-        return null;
+    public Type visit(StringValue stringValue) {
+        return new StringType();
     }
 
     @Override
-    public Void visit(StringValue stringValue) {
-        return null;
-    }
-
-    @Override
-    public Void visit(NewClassInstance newClassInstance) {
+    public Type visit(NewClassInstance newClassInstance) {
         newClassInstance.getClassName().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(FieldCall fieldCall) {
-        fieldCall.getInstance().accept(this);
-        fieldCall.getField().accept(this);
+    public Type visit(FieldCall fieldCall) {
+        Type exprType = fieldCall.getInstance().accept(this);
+        Boolean unDef = !fieldMethodCallCheck(fieldCall, exprType, fieldCall.getField().getName());
+        Type methodType = fieldCall.getField().accept(this);
+        if (unDef)
+            return new UndefinedType();
+        else
+            return methodType;
         return null;
     }
 
     @Override
-    public Void visit(ArrayCall arrayCall) {
+    public Type visit(ArrayCall arrayCall) {
         arrayCall.getInstance().accept(this);
         arrayCall.getIndex().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(NotEquals notEquals) {
+    public Type visit(NotEquals notEquals) {
         notEquals.getLhs().accept(this);
         notEquals.getRhs().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(LocalVarDef localVarDef) {
+    public Type visit(LocalVarDef localVarDef) {
         localVarDef.getLocalVarName().accept(this);
         localVarDef.getInitialValue().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(IncStatement incStatement) {
+    public Type visit(IncStatement incStatement) {
         incStatement.getOperand().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(DecStatement decStatement) {
+    public Type visit(DecStatement decStatement) {
         decStatement.getOperand().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(ClassDeclaration classDeclaration) {
+    public Type visit(ClassDeclaration classDeclaration) {
+
         visitClassBody(classDeclaration);
         return null;
     }
@@ -340,44 +401,45 @@ public class typeCheck implements Visitor<Void> {
     }
 
     @Override
-    public Void visit(EntryClassDeclaration entryClassDeclaration) {
+    public Type visit(EntryClassDeclaration entryClassDeclaration) {
         visitClassBody(entryClassDeclaration);
         return null;
     }
 
     @Override
-    public Void visit(FieldDeclaration fieldDeclaration) {
+    public Type visit(FieldDeclaration fieldDeclaration) {
         fieldDeclaration.getIdentifier().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(ParameterDeclaration parameterDeclaration) {
+    public Type visit(ParameterDeclaration parameterDeclaration) {
         parameterDeclaration.getIdentifier().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(MethodDeclaration methodDeclaration) {
+    public Type visit(MethodDeclaration methodDeclaration) {
         methodDeclaration.getName().accept(this);
         for (ParameterDeclaration pd : methodDeclaration.getArgs()) {
             pd.accept(this);
         }
         inFunc = true;
+        loopDep = 0;
         for (Statement stmt : methodDeclaration.getBody())
             stmt.accept(this);
         return null;
     }
 
     @Override
-    public Void visit(LocalVarsDefinitions localVarsDefinitions) {
+    public Type visit(LocalVarsDefinitions localVarsDefinitions) {
         for (LocalVarDef lvd : localVarsDefinitions.getVarDefinitions())
             lvd.accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Program program) {
+    public Type visit(Program program) {
         for (ClassDeclaration cd : program.getClasses())
             cd.accept(this);
         return null;
