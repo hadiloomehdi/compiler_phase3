@@ -2,11 +2,11 @@ package toorla.typeCheck.compileErrorException;
 
 import toorla.CompileErrorException;
 
-public class FieldClassNotDelared extends CompileErrorException {
+public class FieldClassNotDeclared extends CompileErrorException {
     private String fieldName;
     private String className;
 
-    public FieldClassNotDelared(String classname, String field, int atLine, int atCol){
+    public FieldClassNotDeclared(String classname, String field, int atLine, int atCol){
         super(atLine,atCol);
         fieldName = field;
         className = classname;
