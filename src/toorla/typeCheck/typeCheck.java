@@ -389,13 +389,34 @@ public class typeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(IncStatement incStatement) {
-        incStatement.getOperand().accept(this);
+        Type type = incStatement.getOperand().accept(this);
+
+        Expression ex = incStatement.getOperand();
+        if (!((ex instanceof FieldCall) || (ex instanceof Identifier && inFunc) || (ex instanceof ArrayCall))){
+            RvalueDecInc ee = new RvalueDecInc(incStatement.toString(),incStatement.line,incStatement.col);
+            incStatement.relatedErrors.add(ee);
+        }
+
+        if(!(type instanceof IntType )){
+            UnsupportOperand ee = new UnsupportOperand(incStatement.toString(),incStatement.line,incStatement.col);
+            incStatement.relatedErrors.add(ee);
+        }
         return null;
     }
 
     @Override
     public Type visit(DecStatement decStatement) {
-        decStatement.getOperand().accept(this);
+        Type type = decStatement.getOperand().accept(this);
+
+        Expression ex = decStatement.getOperand();
+        if (!((ex instanceof FieldCall) || (ex instanceof Identifier && inFunc) || (ex instanceof ArrayCall))){
+            RvalueDecInc ee = new RvalueDecInc(decStatement.toString(),decStatement.line,decStatement.col);
+            decStatement.relatedErrors.add(ee);
+        }
+        if(!(type instanceof IntType )){
+            UnsupportOperand ee = new UnsupportOperand(decStatement.toString(),decStatement.line,decStatement.col);
+            decStatement.relatedErrors.add(ee);
+        }
         return null;
     }
 
