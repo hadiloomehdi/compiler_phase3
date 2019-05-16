@@ -74,8 +74,10 @@ public class typeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(Block block) {
+        loopDep+=1;
         for (Statement s : block.body)
             s.accept(this);
+        loopDep-=1;
         return null;
     }
 
@@ -467,6 +469,7 @@ public class typeCheck implements Visitor<Type> {
         loopDep = 0;
         for (Statement stmt : methodDeclaration.getBody())
             stmt.accept(this);
+        inFunc = false;
         return null;
     }
 
