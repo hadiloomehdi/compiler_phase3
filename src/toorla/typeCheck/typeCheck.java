@@ -1,5 +1,6 @@
 package toorla.typeCheck;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import toorla.ast.Program;
 import toorla.ast.Tree;
 import toorla.ast.declaration.classDecs.ClassDeclaration;
@@ -49,8 +50,14 @@ public class typeCheck implements Visitor<Type> {
     @Override
     public Type visit(PrintLine printLine) {
         Type type =  printLine.getArg().accept(this);
-
-        if(!(type instanceof ArrayType) && !(type instanceof IntType) && !(type instanceof StringType)){ ///////array should be int
+        Boolean intArray = false;
+        if (type instanceof ArrayType){
+            ArrayType arrayType = (ArrayType)type;
+            if(arrayType.getSingleType().toString() == "(IntType)"){
+                intArray = true;
+            }
+        }
+        if( !intArray && !(type instanceof IntType) && !(type instanceof StringType)){
             PrintArg ee = new PrintArg(printLine.line,printLine.col);
             printLine.relatedErrors.add(ee);
         }
