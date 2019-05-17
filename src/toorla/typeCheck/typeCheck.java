@@ -44,6 +44,7 @@ import toorla.visitor.Visitor;
 import toorla.types.singleType.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class typeCheck implements Visitor<Type> {
     private boolean inFunc;
@@ -380,10 +381,30 @@ public class typeCheck implements Visitor<Type> {
             MethodClassNotDeclared exc = new MethodClassNotDeclared(className, methodName, methodCall.line, methodCall.col);
             methodCall.relatedErrors.add(exc);
         }
+        try{
+            MethodSymbolTableItem methodItem = findMethod(className, methodName);
+            List<Type> argTypes = methodItem.getArgumentsTypes();
+            if(argTypes.size() != methodCall.getArgs().size()){
+                LessOrMoreArgs ee = new LessOrMoreArgs(methodCall.line, methodCall.col);
+                methodCall.relatedErrors.add(ee);
+            }
+            else{
+                for(int i=0; i <= argTypes.size();i+=1){
+                    Type subType = methodCall.getArgs().get(i).accept(this);
+                    if(!isSubType(subType,argTypes.get(i))){
+                        AssignNotTypeCheck ee = new AssignNotTypeCheck(methodCall.line, methodCall.col);
+                        methodCall.relatedErrors.add(ee);
+                    }
+                }
+            }
+        }catch (ClassMemberNotFoundException exception){
 
-        for (Expression arg : methodCall.getArgs()) {
-            arg.accept(this);
         }
+
+//        for (Expression arg : methodCall.getArgs()) {
+//            Type type = arg.accept(this);
+//
+//        }
         if (unDef)
             return new UndefinedType();
         else
@@ -609,7 +630,7 @@ public class typeCheck implements Visitor<Type> {
         }
         // type check
         if (!isSubType(rValueType, lValueType)) {
-            AssignNotTypeCheck exc = new AssignNotTypeCheck();
+            AssignNotTypeCheck exc = new AssignNotTypeCheck(assign.line,assign.col);
             assign.relatedErrors.add(exc);
         }
         return new NoType();
@@ -654,7 +675,7 @@ public class typeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(MethodDeclaration methodDeclaration) {
-        numVar =-1;
+        numVar =0;
         methodDeclaration.getName().accept(this);
         for (ParameterDeclaration pd : methodDeclaration.getArgs()) {
             pd.accept(this);

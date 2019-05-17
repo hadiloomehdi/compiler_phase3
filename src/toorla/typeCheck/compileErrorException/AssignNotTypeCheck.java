@@ -4,8 +4,8 @@ import toorla.CompileErrorException;
 
 public class AssignNotTypeCheck extends CompileErrorException {
 
-    public AssignNotTypeCheck() {
-
+    public AssignNotTypeCheck(int atLine, int atCol) {
+        super(atLine,atCol);
     }
 
     public String toString() {
