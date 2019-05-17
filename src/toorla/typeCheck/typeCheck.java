@@ -396,6 +396,7 @@ public class typeCheck implements Visitor<Type> {
                 if (LVST.getIndex() > numVar){
                     VariableNotDeclared ee = new VariableNotDeclared(identifier.getName(),identifier.line,identifier.col);
                     identifier.relatedErrors.add(ee);
+                    return new UndefinedType();
                 }
                 else
                     return LVST.getVarType();
