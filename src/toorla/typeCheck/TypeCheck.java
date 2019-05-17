@@ -690,9 +690,10 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(EntryClassDeclaration entryClassDeclaration) {
+        SymbolTable.pushFromQueue();
         visitClassBody(entryClassDeclaration);
         try {
-            MethodSymbolTableItem mst = (MethodSymbolTableItem) SymbolTable.top().get("main");
+            MethodSymbolTableItem mst = (MethodSymbolTableItem) SymbolTable.top().get("method_main");
             Type methodType = mst.getReturnType();
             if (!(mst.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PUBLIC && methodType.toString().equals("(IntType)") && mst.getArgumentsTypes().size()==0)){
                 MainClassInEntry ee = new MainClassInEntry();
@@ -703,6 +704,7 @@ public class TypeCheck implements Visitor<Type> {
             MainClassInEntry ee = new MainClassInEntry();
             entryClassDeclaration.relatedErrors.add(ee);
         }
+        SymbolTable.pop();
         return null;
     }
 
