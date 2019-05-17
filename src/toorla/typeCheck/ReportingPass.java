@@ -307,15 +307,11 @@ public class ReportingPass implements Visitor<Void> {
         return null;
     }
 
-//    @Override
-//    public Void analyze(Program program) {
-//        int numOfErrors = this.visit(program);
-//        if( numOfErrors != 0 )
-//            System.exit( 1 );
-//    }
-
-//    @Override
-    public Void getResult() {
+    public Void analyze(Program program) {
+        this.visit(program);
+        if (!hasError){
+            System.out.println("No error detected;");
+        }
         return null;
     }
 

@@ -31,6 +31,7 @@ import toorla.symbolTable.symbolTableItem.SymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.FieldSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.LocalVariableSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.VarSymbolTableItem;
+import toorla.typeCheck.ClassMemberNotFoundException;
 import toorla.typeCheck.Graph.ParentGraph;
 import toorla.typeCheck.Graph.ParentNotFoundException;
 import toorla.typeCheck.compileErrorException.*;
@@ -46,15 +47,17 @@ import toorla.types.singleType.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class typeCheck implements Visitor<Type> {
+public class TypeCheck implements Visitor<Type> {
+    private Program program;
     private boolean inFunc;
     private Integer loopDep;
     private ParentGraph parents;
     private Integer numVar;
 
-    public typeCheck(Program program) {
+    public TypeCheck(Program program) {
         inFunc = false;
         parents = new ParentGraph(program);
+        this.program = program;
     }
 
     @Override
@@ -381,10 +384,11 @@ public class typeCheck implements Visitor<Type> {
             MethodClassNotDeclared exc = new MethodClassNotDeclared(className, methodName, methodCall.line, methodCall.col);
             methodCall.relatedErrors.add(exc);
         }
+        // parameter type check
         try{
             MethodSymbolTableItem methodItem = findMethod(className, methodName);
             List<Type> argTypes = methodItem.getArgumentsTypes();
-            if(argTypes.size() != methodCall.getArgs().size()){
+            if (argTypes.size() != methodCall.getArgs().size()) {
                 LessOrMoreArgs ee = new LessOrMoreArgs(methodCall.line, methodCall.col);
                 methodCall.relatedErrors.add(ee);
             }
@@ -707,5 +711,11 @@ public class typeCheck implements Visitor<Type> {
         for (ClassDeclaration cd : program.getClasses())
             cd.accept(this);
         return null;
+    }
+
+    public void analyze() {
+        this.visit( program );
+        ReportingPass errorPrinter = new ReportingPass();
+        errorPrinter.analyze(program);
     }
 }

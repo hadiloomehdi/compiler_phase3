@@ -1,25 +1,46 @@
-entry class Test :
-    private field length , length , length1 , length1 , length int;
 
-    public field temp_length bool;
-
-    public function main() returns int :
-        var length = 2;
-        var length1 = 3;
-        var a = 3;
-        begin
-            var a = 2;
-            begin
-                var a1 = 2;
-                var b = 3;
-                var a1 = 3 , a4 = 4 , a1 = 5;
-            end
-            var a = true;
+entry class Sample1 :
+    function main() returns int :
+        var array_size = 10;
+        var array = new int[ array_size ];
+        var i = 0;
+        if( i ) begin
+            continue;
+            break;
         end
-        print( "this code has compile error" );
-        return -1;
+        while( i < array_size ) begin
+            if( i == array_size / 2 ) begin
+                array[ i ] = 1;
+                continue;
+            end
+            array[ i ] = i + 1;
+            i++;
+        end
+        i = 0;
+        while( i < array_size ) begin
+            var val = new BinarySearch().doSearch( 1 , 0 , array.length - 1 );
+            val = new BinarySearch().doSearch( 0 , array.length - 1 );
+        end
+        return false;
+    end
+end
+
+
+class BinarySearch :
+    private field data int[];
+
+    private function doSearch( value : int , _begin : int , _end : int ) returns int:
+        var middle = ( _begin + _end ) / 2;
+        var foundVal = doSearch( value , _begin , middle );
+        if( !foundVal )
+            foundVal = doSearch( value , middle + 1 , _end );
+        return foundVal + new BinarySearch().data.length;
     end
 
-    public field temp_length int;
+    public function find( value : int ) returns int:
+        var value1 = _doSearch( value , 0 , _data.length - 1 ).toString();
+        return doSearch( value , 0 , data.length - 1 ).toString();
+    end
+
 
 end
