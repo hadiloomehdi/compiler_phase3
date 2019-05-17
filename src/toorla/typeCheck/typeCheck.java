@@ -467,7 +467,13 @@ public class typeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(Self self) {
-        return null;
+        try {
+            FieldSymbolTableItem fieldItem = (FieldSymbolTableItem)SymbolTable.top().get("#SELF");
+            return fieldItem.getVarType();
+        } catch (ItemNotFoundException exc) {
+            // does not occur
+        }
+        return new NoType();
     }
 
     @Override
@@ -485,12 +491,12 @@ public class typeCheck implements Visitor<Type> {
             BreakContinue exc = new BreakContinue(continueStat.toString(), continueStat.line, continueStat.col);
             continueStat.relatedErrors.add(exc);
         }
-        return null;
+        return new NoType();
     }
 
     @Override
     public Type visit(Skip skip) {
-        return null;
+        return new NoType();
     }
 
     @Override
@@ -505,7 +511,7 @@ public class typeCheck implements Visitor<Type> {
             ArraySize exc = new ArraySize(newArray.line, newArray.col);
             newArray.relatedErrors.add(exc);
         }
-        return null;
+        return new NoType();
     }
 
     @Override
@@ -543,7 +549,7 @@ public class typeCheck implements Visitor<Type> {
             UnsupportOperand ee = new UnsupportOperand(notEquals.toString(),notEquals.line,notEquals.col);
             notEquals.relatedErrors.add(ee);
         }
-        return null;
+        return new BoolType();
     }
 
     @Override
@@ -556,7 +562,7 @@ public class typeCheck implements Visitor<Type> {
         }catch (Exception e){
 
         }
-        return null;
+        return new NoType();
     }
 
     public Boolean isLValue(Expression exp)

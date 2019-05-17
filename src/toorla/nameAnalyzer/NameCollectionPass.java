@@ -26,6 +26,7 @@ import toorla.symbolTable.symbolTableItem.MethodSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.FieldSymbolTableItem;
 import toorla.symbolTable.symbolTableItem.varItems.LocalVariableSymbolTableItem;
 import toorla.types.Type;
+import toorla.types.singleType.UserDefinedType;
 import toorla.visitor.Visitor;
 
 import java.util.ArrayList;
@@ -238,6 +239,12 @@ public class NameCollectionPass implements Visitor<Void>, INameAnalyzingPass<Voi
         classCounter++;
         ClassSymbolTableItem thisClass = new ClassSymbolTableItem(classDeclaration.getName().getName());
         SymbolTable.push(new SymbolTable( SymbolTable.top() ) );
+        try {
+            SymbolTable.top().put(
+                    new FieldSymbolTableItem("#SELF", new UserDefinedType(classDeclaration)));
+        } catch (ItemAlreadyExistsException exc) {
+            // does not occur
+        }
         try {
             thisClass.setSymbolTable(SymbolTable.top());
             thisClass.setParentSymbolTable(SymbolTable.top().getPreSymbolTable());
