@@ -33,14 +33,19 @@ public class ReportingPass implements Visitor<Void> {
         }
         if (node.relatedErrors.size() > 0)
             hasError = true;
+        return null;
+
     }
 
     @Override
     public Void visit(PrintLine printStat) {
+        printRelatedErrors(printStat);
+        return null;
     }
 
     @Override
     public Void visit(Assign assignStat) {
+        printRelatedErrors(assignStat);
         return null;
     }
 
@@ -49,248 +54,267 @@ public class ReportingPass implements Visitor<Void> {
         printRelatedErrors(block);
         for (Statement stmt : block.body)
             stmt.accept(this);
-        return;
+        return null;
     }
 
     @Override
     public Void visit(Conditional conditional) {
-        return conditional.getThenStatement().accept(this)
-                + conditional.getElseStatement().accept(this);
+        printRelatedErrors(conditional);
+        conditional.getThenStatement().accept(this);
+        conditional.getElseStatement().accept(this);
+        return null;
     }
 
     @Override
     public Void visit(While whileStat) {
+        printRelatedErrors(whileStat);
         whileStat.body.accept(this);
+        return null;
     }
 
     @Override
     public Void visit(Return returnStat) {
-        return;
+        printRelatedErrors(returnStat);
+        return null;
     }
 
     @Override
     public Void visit(Break breakStat) {
-
-        return 0;
+        printRelatedErrors(breakStat);
+        return null;
     }
 
     @Override
     public Void visit(Continue continueStat) {
-        return 0;
+        printRelatedErrors(continueStat);
+        return null;
     }
 
     @Override
     public Void visit(Skip skip) {
-        return 0;
+        printRelatedErrors(skip);
+        return null;
     }
 
     @Override
     public Void visit(LocalVarDef localVarDef) {
-        for (CompileErrorException e : localVarDef.relatedErrors) {
-            System.out.println(e);
-        }
-        return localVarDef.relatedErrors.size();
+        printRelatedErrors(localVarDef);
+        return null;
     }
 
     @Override
     public Void visit(IncStatement incStatement) {
-        return 0;
+        printRelatedErrors(incStatement);
+        return null;
     }
 
     @Override
     public Void visit(DecStatement decStatement) {
-        return 0;
+        printRelatedErrors(decStatement);
+        return null;
     }
 
     @Override
     public Void visit(Plus plusExpr) {
-        return 0;
+        printRelatedErrors(plusExpr);
+        return null;
     }
 
     @Override
     public Void visit(Minus minusExpr) {
-        return 0;
+        printRelatedErrors(minusExpr);
+        return null;
     }
 
     @Override
     public Void visit(Times timesExpr) {
-        return 0;
+        printRelatedErrors(timesExpr);
+        return null;
     }
 
     @Override
     public Void visit(Division divExpr) {
-        return 0;
+        printRelatedErrors(divExpr);
+        return null;
     }
 
     @Override
     public Void visit(Modulo moduloExpr) {
-        return 0;
+        printRelatedErrors(moduloExpr);
+        return null;
     }
 
     @Override
     public Void visit(Equals equalsExpr) {
-        return 0;
+        printRelatedErrors(equalsExpr);
+        return null;
     }
 
     @Override
     public Void visit(GreaterThan gtExpr) {
-        return 0;
+        printRelatedErrors(gtExpr);
+        return null;
     }
 
     @Override
     public Void visit(LessThan lessThanExpr) {
-        return 0;
+        printRelatedErrors(lessThanExpr);
+        return null;
     }
 
     @Override
     public Void visit(And andExpr) {
-        return 0;
+        printRelatedErrors(andExpr);
+        return null;
     }
 
     @Override
     public Void visit(Or orExpr) {
-        return 0;
+        printRelatedErrors(orExpr);
+        return null;
     }
 
     @Override
     public Void visit(Neg negExpr) {
-        return 0;
+        printRelatedErrors(negExpr);
+        return null;
     }
 
     @Override
     public Void visit(Not notExpr) {
-        return 0;
+        printRelatedErrors(notExpr);
+        return null;
     }
 
     @Override
     public Void visit(MethodCall methodCall) {
-        return 0;
+        printRelatedErrors(methodCall);
+        return null;
     }
 
     @Override
     public Void visit(Identifier identifier) {
-        return 0;
+        printRelatedErrors(identifier);
+        return null;
     }
 
     @Override
     public Void visit(Self self) {
-        return 0;
+        printRelatedErrors(self);
+        return null;
     }
 
     @Override
     public Void visit(IntValue intValue) {
-        return 0;
+        printRelatedErrors(intValue);
+        return null;
     }
 
     @Override
     public Void visit(NewArray newArray) {
-        return 0;
+        printRelatedErrors(newArray);
+        return null;
     }
 
     @Override
     public Void visit(BoolValue booleanValue) {
-        return 0;
+        printRelatedErrors(booleanValue);
+        return null;
     }
 
     @Override
     public Void visit(StringValue stringValue) {
-        return 0;
+        printRelatedErrors(stringValue);
+        return null;
     }
 
     @Override
     public Void visit(NewClassInstance newClassInstance) {
-        return 0;
+        printRelatedErrors(newClassInstance);
+        return null;
     }
 
     @Override
     public Void visit(FieldCall fieldCall) {
-        return 0;
+        printRelatedErrors(fieldCall);
+        return null;
     }
 
     @Override
     public Void visit(ArrayCall arrayCall) {
-        return 0;
+        printRelatedErrors(arrayCall);
+        return null;
     }
 
     @Override
     public Void visit(NotEquals notEquals) {
-        return 0;
+        printRelatedErrors(notEquals);
+        return null;
     }
 
     @Override
     public Void visit(ClassDeclaration classDeclaration) {
-        int numOfErrors = classDeclaration.relatedErrors.size();
-        for (CompileErrorException e : classDeclaration.relatedErrors) {
-            System.out.println(e);
-        }
+        printRelatedErrors(classDeclaration);
         for (ClassMemberDeclaration cmd : classDeclaration.getClassMembers())
-            numOfErrors += cmd.accept(this);
-        return numOfErrors;
+            cmd.accept(this);
+        return null;
     }
 
     @Override
     public Void visit(EntryClassDeclaration entryClassDeclaration) {
-        return this.visit((ClassDeclaration) entryClassDeclaration);
+        printRelatedErrors(entryClassDeclaration);
+        this.visit((ClassDeclaration) entryClassDeclaration);
+        return null;
     }
 
     @Override
     public Void visit(FieldDeclaration fieldDeclaration) {
-        for (CompileErrorException e : fieldDeclaration.relatedErrors) {
-            System.out.println(e);
-        }
-        return fieldDeclaration.relatedErrors.size();
+        printRelatedErrors(fieldDeclaration);
+        return null;
     }
 
     @Override
     public Void visit(ParameterDeclaration parameterDeclaration) {
-        for (CompileErrorException e : parameterDeclaration.relatedErrors) {
-            System.out.println(e);
-        }
-        return parameterDeclaration.relatedErrors.size();
+        printRelatedErrors(parameterDeclaration);
+        return null;
     }
 
     @Override
     public Void visit(MethodDeclaration methodDeclaration) {
-        int numOfErrors = methodDeclaration.relatedErrors.size();
-        for (CompileErrorException e : methodDeclaration.relatedErrors) {
-            System.out.println(e);
-        }
+        printRelatedErrors(methodDeclaration);
         for (ParameterDeclaration pd : methodDeclaration.getArgs())
-            numOfErrors += pd.accept(this);
+            pd.accept(this);
         for (Statement stmt : methodDeclaration.getBody())
-            numOfErrors += stmt.accept(this);
-        return numOfErrors;
+            stmt.accept(this);
+        return null;
     }
 
     @Override
     public Void visit(LocalVarsDefinitions localVarsDefinitions) {
-        int numOfErrors = 0;
+        printRelatedErrors(localVarsDefinitions);
         for (LocalVarDef lvd : localVarsDefinitions.getVarDefinitions()) {
-            numOfErrors += lvd.accept(this);
+            lvd.accept(this);
         }
-        return numOfErrors;
+        return null;
     }
 
     @Override
     public Void visit(Program program) {
-        int numOfErrors = program.relatedErrors.size();
-        for (CompileErrorException e : program.relatedErrors) {
-            System.out.println(e);
-        }
+
         for (ClassDeclaration cd : program.getClasses()) {
-            numOfErrors += cd.accept(this);
+        cd.accept(this);
         }
-        return numOfErrors;
+        return null;
     }
 
-    @Override
-    public Void analyze(Program program) {
-        int numOfErrors = this.visit(program);
-        if( numOfErrors != 0 )
-            System.exit( 1 );
-    }
+//    @Override
+//    public Void analyze(Program program) {
+//        int numOfErrors = this.visit(program);
+//        if( numOfErrors != 0 )
+//            System.exit( 1 );
+//    }
 
-    @Override
+//    @Override
     public Void getResult() {
         return null;
     }
