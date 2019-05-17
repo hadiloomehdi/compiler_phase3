@@ -380,7 +380,7 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(MethodCall methodCall) {
-        System.out.println(methodCall.line);
+//        System.out.println(methodCall.line);
         Type exprType = methodCall.getInstance().accept(this);
         Boolean unDef = !fieldMethodCallCheck(methodCall, exprType, methodCall.getMethodName().getName());
         methodCall.getMethodName().accept(this);
@@ -579,6 +579,7 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(LocalVarDef localVarDef) {
+        numVar +=1;
         localVarDef.getLocalVarName().accept(this);
         Type type = localVarDef.getInitialValue().accept(this);
         try{
