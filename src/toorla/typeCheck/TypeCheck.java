@@ -44,6 +44,7 @@ import toorla.types.singleType.SingleType;
 import toorla.visitor.Visitor;
 import toorla.types.singleType.*;
 
+import javax.swing.plaf.synth.SynthButtonUI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -581,8 +582,8 @@ public class TypeCheck implements Visitor<Type> {
         localVarDef.getLocalVarName().accept(this);
         Type type = localVarDef.getInitialValue().accept(this);
         try{
-            LocalVariableSymbolTableItem localVarSybmbolTable =  (LocalVariableSymbolTableItem)SymbolTable.top().get(VarSymbolTableItem.var_modifier + localVarDef.getLocalVarName().getName());
-            localVarSybmbolTable.setVarType(type);
+            LocalVariableSymbolTableItem localVarSymbolTable =  (LocalVariableSymbolTableItem)SymbolTable.top().get(VarSymbolTableItem.var_modifier + localVarDef.getLocalVarName().getName());
+            localVarSymbolTable.setVarType(type);
         }catch (Exception e){
 
         }
@@ -690,6 +691,18 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(EntryClassDeclaration entryClassDeclaration) {
         visitClassBody(entryClassDeclaration);
+        try {
+            MethodSymbolTableItem mst = (MethodSymbolTableItem) SymbolTable.top().get("main");
+            Type methodType = mst.getReturnType();
+            if (!(mst.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PUBLIC && methodType.toString().equals("(IntType)") && mst.getArgumentsTypes().size()==0)){
+                MainClassInEntry ee = new MainClassInEntry();
+                entryClassDeclaration.relatedErrors.add(ee);
+            }
+
+        }catch (ItemNotFoundException exc){
+            MainClassInEntry ee = new MainClassInEntry();
+            entryClassDeclaration.relatedErrors.add(ee);
+        }
         return null;
     }
 

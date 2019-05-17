@@ -312,6 +312,9 @@ public class ReportingPass implements Visitor<Void> {
         if (!hasError){
             System.out.println("No error detected;");
         }
+        else {
+            System.exit( 1 );
+        }
         return null;
     }
 
