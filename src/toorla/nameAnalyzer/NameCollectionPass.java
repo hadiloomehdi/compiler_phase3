@@ -312,6 +312,13 @@ public class NameCollectionPass implements Visitor<Void>, INameAnalyzingPass<Voi
             methodDeclaration.relatedErrors.add(ee);
         }
         SymbolTable.push( new SymbolTable( SymbolTable.top() ) );
+        try {
+            LocalVariableSymbolTableItem localVar = new LocalVariableSymbolTableItem("#RET", 0);
+            localVar.setVarType(methodDeclaration.getReturnType());
+            SymbolTable.top().put( localVar );
+        } catch (ItemAlreadyExistsException e) {
+            // nothing
+        }
         for (ParameterDeclaration pd : methodDeclaration.getArgs())
             pd.accept(this);
         for (Statement stmt : methodDeclaration.getBody())
