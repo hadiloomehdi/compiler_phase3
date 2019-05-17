@@ -324,7 +324,8 @@ public class NameCollectionPass implements Visitor<Void>, INameAnalyzingPass<Voi
             localVar.setVarType(methodDeclaration.getReturnType());
             SymbolTable.top().put( localVar );
         } catch (ItemAlreadyExistsException e) {
-            // nothing
+            // does not occur
+            System.out.println("vaaaay");
         }
         for (ParameterDeclaration pd : methodDeclaration.getArgs())
             pd.accept(this);

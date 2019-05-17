@@ -4,23 +4,7 @@ entry class Sample1 :
         var array_size = 10;
         var array = new int[ array_size ];
         var i = 0;
-        if( i ) begin
-            continue;
-            break;
-        end
-        while( i < array_size ) begin
-            if( i == array_size / 2 ) begin
-                array[ i ] = 1;
-                continue;
-            end
-            array[ i ] = i + 1;
-            i++;
-        end
         i = 0;
-        while( i < array_size ) begin
-            var val = new BinarySearch().doSearch( 1 , 0 , array.length - 1 );
-            val = new BinarySearch().doSearch( 0 , array.length - 1 );
-        end
         return false;
     end
 end

@@ -44,7 +44,6 @@ import toorla.types.singleType.SingleType;
 import toorla.visitor.Visitor;
 import toorla.types.singleType.*;
 
-import javax.swing.plaf.synth.SynthButtonUI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -321,6 +320,8 @@ public class TypeCheck implements Visitor<Type> {
     public Boolean isSubType(Type subType, Type superType) {
         if (hasSamePrimitiveType(subType,superType))
             return true;
+        if (!(subType instanceof UserDefinedType) || !(subType instanceof UserDefinedType))
+            return false;
         UserDefinedType subClass = (UserDefinedType)subType;
         UserDefinedType superClass = (UserDefinedType)superType;
         String curName = subClass.getClassDeclaration().getName().getName();
@@ -352,19 +353,28 @@ public class TypeCheck implements Visitor<Type> {
         return (MethodSymbolTableItem)SymbolTable.top().get(methodName);
     }
 
-    public FieldSymbolTableItem findField(String className, String fieldName) throws ClassMemberNotFoundException {
-        while (true) {
-            SymbolTable classSymbol = getClassSymbolByName(className);
-            try {
-                FieldSymbolTableItem fieldItem = (FieldSymbolTableItem)classSymbol.get(fieldName);
-                return fieldItem;
-            } catch (ItemNotFoundException exc1) {
-                try {
-                    className = getParentByName(className);
-                } catch (ParentNotFoundException exc2) {
-                    throw new ClassMemberNotFoundException();
-                }
-            }
+    public FieldSymbolTableItem findField(String className, String fieldName) throws ItemNotFoundException {
+//        while (true) {
+//            SymbolTable classSymbol = getClassSymbolByName(className);
+//            try {
+//                FieldSymbolTableItem fieldItem = (FieldSymbolTableItem)classSymbol.get(fieldName);
+//                return fieldItem;
+//            } catch (ItemNotFoundException exc1) {
+//                try {
+//                    className = getParentByName(className);
+//                } catch (ParentNotFoundException exc2) {
+//                    throw new ClassMemberNotFoundException();
+//                }
+//            }
+//        }
+        return (FieldSymbolTableItem)SymbolTable.top().get(fieldName);
+    }
+
+    public Boolean objectIsValid(Expression memberCall, Type exprType, String memberName) {
+        if (!(exprType instanceof UserDefinedType || (exprType instanceof ArrayType && memberName.equals("length")))) {
+            UnsupportOperand exc = new UnsupportOperand(memberCall.toString(), memberCall.line, memberCall.col);
+            memberCall.relatedErrors.add(exc);
+            return false;
         }
     }
 
@@ -380,44 +390,44 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(MethodCall methodCall) {
-//        System.out.println(methodCall.line);
+        System.out.println(methodCall.line);
         Type exprType = methodCall.getInstance().accept(this);
         Boolean unDef = !fieldMethodCallCheck(methodCall, exprType, methodCall.getMethodName().getName());
         methodCall.getMethodName().accept(this);
 
-        UserDefinedType exprUserType = (UserDefinedType)exprType;
-        String className = exprUserType.getClassDeclaration().getName().getName();
-        String methodName = methodCall.getMethodName().getName();
-        Type methodType = new NoType();
-        try {
-            MethodSymbolTableItem methodItem = findMethod(className, methodName);
-            methodType = methodItem.getReturnType();
-            if (methodItem.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PRIVATE && !(methodCall.getInstance() instanceof Self)) {
-                PrivateCall exc = new PrivateCall("Method", methodName, className, methodCall.line, methodCall.col);
+            UserDefinedType exprUserType = (UserDefinedType)exprType;
+            String className = exprUserType.getClassDeclaration().getName().getName();
+            String methodName = methodCall.getMethodName().getName();
+            Type methodType = new NoType();
+            try {
+                MethodSymbolTableItem methodItem = findMethod(className, methodName);
+                methodType = methodItem.getReturnType();
+                if (methodItem.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PRIVATE && !(methodCall.getInstance() instanceof Self)) {
+                    PrivateCall exc = new PrivateCall("Method", methodName, className, methodCall.line, methodCall.col);
+                    methodCall.relatedErrors.add(exc);
+                }
+            } catch (ItemNotFoundException exception) {
+                MethodClassNotDeclared exc = new MethodClassNotDeclared(className, methodName, methodCall.line, methodCall.col);
                 methodCall.relatedErrors.add(exc);
             }
-        } catch (ItemNotFoundException exception) {
-            MethodClassNotDeclared exc = new MethodClassNotDeclared(className, methodName, methodCall.line, methodCall.col);
-            methodCall.relatedErrors.add(exc);
-        }
-        // parameter type check
-        try{
-            MethodSymbolTableItem methodItem = findMethod(className, methodName);
-            List<Type> argTypes = methodItem.getArgumentsTypes();
-            if (argTypes.size() != methodCall.getArgs().size()) {
-                LessOrMoreArgs ee = new LessOrMoreArgs(methodCall.line, methodCall.col);
-                methodCall.relatedErrors.add(ee);
-            }
-            else{
-                for(int i=0; i <= argTypes.size();i+=1){
-                    Type subType = methodCall.getArgs().get(i).accept(this);
-                    if(!isSubType(subType,argTypes.get(i))){
-                        AssignNotTypeCheck ee = new AssignNotTypeCheck(methodCall.line, methodCall.col);
-                        methodCall.relatedErrors.add(ee);
+            // parameter type check
+            try{
+                MethodSymbolTableItem methodItem = findMethod(className, methodName);
+                List<Type> argTypes = methodItem.getArgumentsTypes();
+                if (argTypes.size() != methodCall.getArgs().size()) {
+                    LessOrMoreArgs ee = new LessOrMoreArgs(methodCall.line, methodCall.col);
+                    methodCall.relatedErrors.add(ee);
+                }
+                else{
+                    for(int i=0; i <= argTypes.size();i+=1){
+                        Type subType = methodCall.getArgs().get(i).accept(this);
+                        if(!isSubType(subType,argTypes.get(i))){
+                            AssignNotTypeCheck ee = new AssignNotTypeCheck(methodCall.line, methodCall.col);
+                            methodCall.relatedErrors.add(ee);
+                        }
                     }
                 }
-            }
-        }catch (ItemNotFoundException exception){
+            }catch (ItemNotFoundException exception){
 
         }
 
@@ -579,12 +589,11 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(LocalVarDef localVarDef) {
-        numVar +=1;
         localVarDef.getLocalVarName().accept(this);
         Type type = localVarDef.getInitialValue().accept(this);
         try{
-            LocalVariableSymbolTableItem localVarSymbolTable =  (LocalVariableSymbolTableItem)SymbolTable.top().get(VarSymbolTableItem.var_modifier + localVarDef.getLocalVarName().getName());
-            localVarSymbolTable.setVarType(type);
+            LocalVariableSymbolTableItem localVarSybmbolTable =  (LocalVariableSymbolTableItem)SymbolTable.top().get(VarSymbolTableItem.var_modifier + localVarDef.getLocalVarName().getName());
+            localVarSybmbolTable.setVarType(type);
         }catch (Exception e){
 
         }
@@ -691,21 +700,7 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(EntryClassDeclaration entryClassDeclaration) {
-        SymbolTable.pushFromQueue();
         visitClassBody(entryClassDeclaration);
-        try {
-            MethodSymbolTableItem mst = (MethodSymbolTableItem) SymbolTable.top().get("method_main");
-            Type methodType = mst.getReturnType();
-            if (!(mst.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PUBLIC && methodType.toString().equals("(IntType)") && mst.getArgumentsTypes().size()==0)){
-                MainClassInEntry ee = new MainClassInEntry();
-                entryClassDeclaration.relatedErrors.add(ee);
-            }
-
-        }catch (ItemNotFoundException exc){
-            MainClassInEntry ee = new MainClassInEntry();
-            entryClassDeclaration.relatedErrors.add(ee);
-        }
-        SymbolTable.pop();
         return null;
     }
 
