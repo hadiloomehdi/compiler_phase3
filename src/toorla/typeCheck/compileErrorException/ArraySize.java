@@ -1,5 +1,6 @@
 package toorla.typeCheck.compileErrorException;
 
+
 import toorla.CompileErrorException;
 
 public class ArraySize extends CompileErrorException {

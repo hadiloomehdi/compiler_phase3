@@ -4,6 +4,7 @@ import toorla.ast.declaration.classDecs.classMembersDecs.AccessModifier;
 import toorla.types.Type;
 
 public class FieldSymbolTableItem extends VarSymbolTableItem {
+
     private AccessModifier accessModifier;
 
     public FieldSymbolTableItem(String name , AccessModifier accessModifier , Type type ){

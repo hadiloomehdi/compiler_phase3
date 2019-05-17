@@ -1,6 +1,5 @@
 package toorla.typeCheck;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import toorla.ast.Program;
 import toorla.ast.Tree;
 import toorla.ast.declaration.classDecs.ClassDeclaration;
@@ -279,7 +278,12 @@ public class typeCheck implements Visitor<Type> {
 
     public SymbolTable getClassSymbolByName(String name) {
         SymbolTable root = SymbolTable.root;
-        ClassSymbolTableItem classSymbolItem = (ClassSymbolTableItem)root.get(name);
+        ClassSymbolTableItem classSymbolItem = new ClassSymbolTableItem(name);
+        try {
+            classSymbolItem = (ClassSymbolTableItem) root.get(name);
+        } catch (ItemNotFoundException exc) {
+            // nothing
+        }
         return classSymbolItem.getSymbolTable();
     }
 
@@ -336,7 +340,7 @@ public class typeCheck implements Visitor<Type> {
         try {
             MethodSymbolTableItem methodItem = findMethod(className, methodName);
             methodType = methodItem.getReturnType();
-            if (methodItem.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PRIVATE) {
+            if (methodItem.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PRIVATE && !(methodCall.getInstance() instanceof Self)) {
                 PrivateCall exc = new PrivateCall("Method", methodName, className, methodCall.line, methodCall.col);
                 methodCall.relatedErrors.add(exc);
             }
@@ -367,7 +371,7 @@ public class typeCheck implements Visitor<Type> {
         try {
             FieldSymbolTableItem fieldItem = findField(className, fieldName);
             fieldType = fieldItem.getVarType();
-            if (fieldItem.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PRIVATE) {
+            if (fieldItem.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PRIVATE && !(fieldCall.getInstance() instanceof Self)) {
                 PrivateCall exc = new PrivateCall("Method", fieldName, className, fieldCall.line, fieldCall.col);
                 fieldCall.relatedErrors.add(exc);
             }

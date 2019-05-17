@@ -1,20 +1,25 @@
-entry class A inherits B:
-    field length int;
-    public function b() returns int:
-        var a = 1;
-        var a = 1;
-    end
-end
+entry class Test :
+    private field length , length , length1 , length1 , length int;
 
-class B:
-    field length int;
-    public function b() returns int:
-    end
-    public function b() returns int:
-        var d = 1;
+    public field temp_length bool;
+
+    public function main() returns int :
+        var length = 2;
+        var length1 = 3;
+        var a = 3;
         begin
-            var a = 1;
+            var a = 2;
+            begin
+                var a1 = 2;
+                var b = 3;
+                var a1 = 3 , a4 = 4 , a1 = 5;
+            end
+            var a = true;
         end
-        var d = 1;
+        print( "this code has compile error" );
+        return -1;
     end
+
+    public field temp_length int;
+
 end
