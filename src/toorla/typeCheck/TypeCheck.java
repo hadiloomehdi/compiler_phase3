@@ -45,7 +45,9 @@ import toorla.visitor.Visitor;
 import toorla.types.singleType.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TypeCheck implements Visitor<Type> {
     private Program program;
@@ -53,11 +55,13 @@ public class TypeCheck implements Visitor<Type> {
     private Integer loopDep;
     private ParentGraph parents;
     private Integer numVar;
+    Map<String, ClassDeclaration> classNameMap;
 
     public TypeCheck(Program program) {
         inFunc = false;
         parents = new ParentGraph(program);
         this.program = program;
+        classNameMap = new HashMap<>();
     }
 
     @Override
@@ -78,10 +82,12 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(Block block) {
+        SymbolTable.pushFromQueue();
         loopDep+=1;
         for (Statement s : block.body)
             s.accept(this);
         loopDep-=1;
+        SymbolTable.pop();
         return new NoType();
     }
 
@@ -92,8 +98,12 @@ public class TypeCheck implements Visitor<Type> {
             ConditionNotBoolean ee = new ConditionNotBoolean(conditional.toString(),conditional.line,conditional.col);
             conditional.relatedErrors.add(ee);
         }
+        SymbolTable.pushFromQueue();
         conditional.getThenStatement().accept(this);
+        SymbolTable.pop();
+        SymbolTable.pushFromQueue();
         conditional.getElseStatement().accept(this);
+        SymbolTable.pop();
         return new NoType();
     }
 
@@ -104,7 +114,9 @@ public class TypeCheck implements Visitor<Type> {
             ConditionNotBoolean ee = new ConditionNotBoolean(whileStat.toString(),whileStat.line,whileStat.col);
             whileStat.relatedErrors.add(ee);
         }
+        SymbolTable.pushFromQueue();
         whileStat.body.accept(this);
+        SymbolTable.pop();
         return new NoType();
     }
 
@@ -183,7 +195,7 @@ public class TypeCheck implements Visitor<Type> {
     public Type visit(Equals equalsExpr) {
         Type lValue = equalsExpr.getLhs().accept(this);
         Type rValue = equalsExpr.getRhs().accept(this);
-        if(rValue.toString() != lValue.toString()){
+        if (!hasSamePrimitiveType(lValue , rValue)) {
             UnsupportOperand ee = new UnsupportOperand(equalsExpr.toString(),equalsExpr.line,equalsExpr.col);////array
             equalsExpr.relatedErrors.add(ee);
         }
@@ -275,15 +287,6 @@ public class TypeCheck implements Visitor<Type> {
         return true;
     }
 
-    public Boolean fieldMethodCallCheck(Expression memberCall, Type exprType, String memberName) {
-        if (!objectIsValid(memberCall, exprType, memberName))
-            return false;
-        else {
-            UserDefinedType exprUserType = (UserDefinedType)exprType;
-            return foundClass(memberCall, exprUserType.getClassDeclaration().getName().getName());
-        }
-    }
-
     public SymbolTable getClassSymbolByName(String name) {
         SymbolTable root = SymbolTable.root;
         ClassSymbolTableItem classSymbolItem = new ClassSymbolTableItem(name);
@@ -331,20 +334,21 @@ public class TypeCheck implements Visitor<Type> {
         return true;
     }
 
-    public MethodSymbolTableItem findMethod(String className, String methodName) throws ClassMemberNotFoundException {
-        while (true) {
-            SymbolTable classSymbol = getClassSymbolByName(className);
-            try {
-                MethodSymbolTableItem methodItem = (MethodSymbolTableItem)classSymbol.get(methodName);
-                return methodItem;
-            } catch (ItemNotFoundException exc1) {
-                try {
-                    className = getParentByName(className);
-                } catch (ParentNotFoundException exc2) {
-                    throw new ClassMemberNotFoundException();
-                }
-            }
-        }
+    public MethodSymbolTableItem findMethod(String className, String methodName) throws ItemNotFoundException {
+//        while (true) {
+//            SymbolTable classSymbol = getClassSymbolByName(className);
+//            try {
+//                MethodSymbolTableItem methodItem = (MethodSymbolTableItem)classSymbol.get(methodName);
+//                return methodItem;
+//            } catch (ItemNotFoundException exc1) {
+//                try {
+//                    className = getParentByName(className);
+//                } catch (ParentNotFoundException exc2) {
+//                    throw new ClassMemberNotFoundException();
+//                }
+//            }
+//        }
+        return (MethodSymbolTableItem)SymbolTable.top().get(methodName);
     }
 
     public FieldSymbolTableItem findField(String className, String fieldName) throws ClassMemberNotFoundException {
@@ -363,8 +367,19 @@ public class TypeCheck implements Visitor<Type> {
         }
     }
 
+
+    public Boolean fieldMethodCallCheck(Expression memberCall, Type exprType, String memberName) {
+        if (!objectIsValid(memberCall, exprType, memberName))
+            return false;
+        else {
+            UserDefinedType exprUserType = (UserDefinedType)exprType;
+            return foundClass(memberCall, exprUserType.getClassDeclaration().getName().getName());
+        }
+    }
+
     @Override
     public Type visit(MethodCall methodCall) {
+        System.out.println(methodCall.line);
         Type exprType = methodCall.getInstance().accept(this);
         Boolean unDef = !fieldMethodCallCheck(methodCall, exprType, methodCall.getMethodName().getName());
         methodCall.getMethodName().accept(this);
@@ -380,7 +395,7 @@ public class TypeCheck implements Visitor<Type> {
                 PrivateCall exc = new PrivateCall("Method", methodName, className, methodCall.line, methodCall.col);
                 methodCall.relatedErrors.add(exc);
             }
-        } catch (ClassMemberNotFoundException exception) {
+        } catch (ItemNotFoundException exception) {
             MethodClassNotDeclared exc = new MethodClassNotDeclared(className, methodName, methodCall.line, methodCall.col);
             methodCall.relatedErrors.add(exc);
         }
@@ -401,7 +416,7 @@ public class TypeCheck implements Visitor<Type> {
                     }
                 }
             }
-        }catch (ClassMemberNotFoundException exception){
+        }catch (ItemNotFoundException exception){
 
         }
 
@@ -531,7 +546,12 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(NewClassInstance newClassInstance) {
         newClassInstance.getClassName().accept(this);
-        return null;
+        String className = newClassInstance.getClassName().getName();
+        if (!classNameMap.containsKey(className)) {
+            ClassNotDef exc = new ClassNotDef(className, newClassInstance.line, newClassInstance.col);
+            newClassInstance.relatedErrors.add(exc);
+        }
+        return new UserDefinedType(classNameMap.get(className));
     }
 
     @Override
@@ -661,8 +681,10 @@ public class TypeCheck implements Visitor<Type> {
             }
             classDeclaration.getParentName().accept(this);
         }
+        SymbolTable.pushFromQueue();
         for (ClassMemberDeclaration md : classDeclaration.getClassMembers())
             md.accept(this);
+        SymbolTable.pop();
     }
 
     @Override
@@ -693,8 +715,10 @@ public class TypeCheck implements Visitor<Type> {
         }
         inFunc = true;
         loopDep = 0;
+        SymbolTable.pushFromQueue();
         for (Statement stmt : methodDeclaration.getBody())
             stmt.accept(this);
+        SymbolTable.pop();
         inFunc = false;
         return null;
     }
@@ -708,12 +732,17 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(Program program) {
+        SymbolTable.pushFromQueue();
         for (ClassDeclaration cd : program.getClasses())
             cd.accept(this);
-        return null;
+        SymbolTable.pop();
+        return new NoType();
     }
 
     public void analyze() {
+        for (ClassDeclaration itrClass : program.getClasses())
+            if ( !classNameMap.containsKey(itrClass.getName().getName()) )
+                classNameMap.put(itrClass.getName().getName(), itrClass);
         this.visit( program );
         ReportingPass errorPrinter = new ReportingPass();
         errorPrinter.analyze(program);
