@@ -69,7 +69,7 @@ public class typeCheck implements Visitor<Type> {
             PrintArg ee = new PrintArg(printLine.line,printLine.col);
             printLine.relatedErrors.add(ee);
         }
-        return null;
+        return new NoType();
     }
 
     @Override
@@ -78,7 +78,7 @@ public class typeCheck implements Visitor<Type> {
         for (Statement s : block.body)
             s.accept(this);
         loopDep-=1;
-        return null;
+        return new NoType();
     }
 
     @Override
@@ -90,7 +90,7 @@ public class typeCheck implements Visitor<Type> {
         }
         conditional.getThenStatement().accept(this);
         conditional.getElseStatement().accept(this);
-        return null;
+        return new NoType();
     }
 
     @Override
@@ -101,7 +101,7 @@ public class typeCheck implements Visitor<Type> {
             whileStat.relatedErrors.add(ee);
         }
         whileStat.body.accept(this);
-        return null;
+        return new NoType();
     }
 
     @Override
@@ -117,7 +117,7 @@ public class typeCheck implements Visitor<Type> {
             ReturnType exc = new ReturnType(retType.toString(), returnStat.line, returnStat.col);
             returnStat.relatedErrors.add(exc);
         }
-        return null;
+        return new NoType();
     }
 
     @Override
@@ -588,17 +588,31 @@ public class typeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(Assign assign) {
-        Type lValue = assign.getLvalue().accept(this);
-        Type rValue = assign.getRvalue().accept(this);
+        Type lValueType = assign.getLvalue().accept(this);
+        Type rValueType = assign.getRvalue().accept(this);
 
         Expression exp = assign.getLvalue();
+        // lValue check
         if (!isLValue(exp)) {
             Rvalue ee = new Rvalue(assign.line,assign.col);
             assign.relatedErrors.add(ee);
         }
-        if (!(lValue instanceof AnonymousType))
+        if (!(lValueType instanceof AnonymousType))
             return new NoType();
+        // set type
         String lValueName = getLValueName(exp);
+        try {
+            VarSymbolTableItem varItem =  (VarSymbolTableItem)SymbolTable.top().get(lValueName);
+            varItem.setVarType(rValueType);
+        } catch (ItemNotFoundException exc) {
+            // Does not occur
+        }
+        // type check
+        if (!isSubType(rValueType, lValueType)) {
+            AssignNotTypeCheck exc = new AssignNotTypeCheck();
+            assign.relatedErrors.add(exc);
+        }
+        return new NoType();
     }
 
     @Override
