@@ -289,8 +289,9 @@ public class NameCollectionPass implements Visitor<Void>, INameAnalyzingPass<Voi
     @Override
     public Void visit(ParameterDeclaration parameterDeclaration) {
         try {
-            SymbolTable.top().put(
-                    new LocalVariableSymbolTableItem(parameterDeclaration.getIdentifier().getName(), newLocalVarIndex));
+            LocalVariableSymbolTableItem param = new LocalVariableSymbolTableItem(parameterDeclaration.getIdentifier().getName(), newLocalVarIndex);
+            param.setVarType(parameterDeclaration.getType());
+            SymbolTable.top().put(param);
         } catch (ItemAlreadyExistsException e) {
             LocalVarRedefinitionException ee = new LocalVarRedefinitionException(
                     parameterDeclaration.getIdentifier().getName(), parameterDeclaration.line,

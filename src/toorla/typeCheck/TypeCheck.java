@@ -139,12 +139,10 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(Plus plusExpr) {
         Type lValue = plusExpr.getLhs().accept(this);
-        if (lValue instanceof UndefinedType)
-            return new UndefinedType();
         Type rValue = plusExpr.getRhs().accept(this);
-        if (rValue instanceof UndefinedType)
+        if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
-        if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
+        if(!(rValue instanceof IntType && lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(plusExpr.toString(),plusExpr.line,plusExpr.col);
             plusExpr.relatedErrors.add(ee);
         }
@@ -154,10 +152,8 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(Minus minusExpr) {
         Type lValue = minusExpr.getLhs().accept(this);
-        if (lValue instanceof UndefinedType)
-            return new UndefinedType();
         Type rValue = minusExpr.getRhs().accept(this);
-        if (rValue instanceof UndefinedType)
+        if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(minusExpr.toString(),minusExpr.line,minusExpr.col);
@@ -169,10 +165,8 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(Times timesExpr) {
         Type lValue = timesExpr.getLhs().accept(this);
-        if (lValue instanceof UndefinedType)
-            return new UndefinedType();
         Type rValue = timesExpr.getRhs().accept(this);
-        if (rValue instanceof UndefinedType)
+        if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
         if(!(rValue instanceof IntType ) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(timesExpr.toString(),timesExpr.line,timesExpr.col);
@@ -184,10 +178,8 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(Division divisionExpr) {
         Type lValue = divisionExpr.getLhs().accept(this);
-        if (lValue instanceof UndefinedType)
-            return new UndefinedType();
         Type rValue = divisionExpr.getRhs().accept(this);
-        if (rValue instanceof UndefinedType)
+        if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
         if(!(rValue instanceof IntType ) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(divisionExpr.toString(),divisionExpr.line,divisionExpr.col);
@@ -199,10 +191,8 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(Modulo moduloExpr) {
         Type lValue = moduloExpr.getLhs().accept(this);
-        if (lValue instanceof UndefinedType)
-            return new UndefinedType();
         Type rValue = moduloExpr.getRhs().accept(this);
-        if (rValue instanceof UndefinedType)
+        if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(moduloExpr.toString(),moduloExpr.line,moduloExpr.col);
@@ -214,10 +204,8 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(Equals equalsExpr) {
         Type lValue = equalsExpr.getLhs().accept(this);
-        if (lValue instanceof UndefinedType)
-            return new UndefinedType();
         Type rValue = equalsExpr.getRhs().accept(this);
-        if (rValue instanceof UndefinedType)
+        if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
         if (!hasSamePrimitiveType(lValue , rValue)) {
             UnsupportOperand ee = new UnsupportOperand(equalsExpr.toString(),equalsExpr.line,equalsExpr.col);////array
@@ -229,10 +217,8 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(GreaterThan gtExpr) {
         Type lValue = gtExpr.getLhs().accept(this);
-        if (lValue instanceof UndefinedType)
-            return new UndefinedType();
         Type rValue = gtExpr.getRhs().accept(this);
-        if (rValue instanceof UndefinedType)
+        if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(gtExpr.toString(),gtExpr.line,gtExpr.col);
@@ -244,10 +230,8 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(LessThan ltExpr) {
         Type lValue = ltExpr.getLhs().accept(this);
-        if (lValue instanceof UndefinedType)
-            return new UndefinedType();
         Type rValue = ltExpr.getRhs().accept(this);
-        if (rValue instanceof UndefinedType)
+        if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(ltExpr.toString(),ltExpr.line,ltExpr.col);
@@ -259,10 +243,8 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(And andExpr) {
         Type lValue = andExpr.getLhs().accept(this);
-        if (lValue instanceof UndefinedType)
-            return new UndefinedType();
         Type rValue = andExpr.getRhs().accept(this);
-        if (rValue instanceof UndefinedType)
+        if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
         if(!(rValue instanceof BoolType) && !(lValue instanceof BoolType)){
             UnsupportOperand ee = new UnsupportOperand(andExpr.toString(),andExpr.line,andExpr.col);
@@ -274,10 +256,8 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(Or orExpr) {
         Type lValue = orExpr.getLhs().accept(this);
-        if (lValue instanceof UndefinedType)
-            return new UndefinedType();
         Type rValue = orExpr.getRhs().accept(this);
-        if (rValue instanceof UndefinedType)
+        if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
         if(!(rValue instanceof BoolType) && !(lValue instanceof BoolType)){
             UnsupportOperand ee = new UnsupportOperand(orExpr.toString(),orExpr.line,orExpr.col);
@@ -313,24 +293,13 @@ public class TypeCheck implements Visitor<Type> {
     public Boolean foundClass(Tree node, String className) {
         SymbolTable root = SymbolTable.root;
         try {
-            root.get(className);
+            root.get("class_" + className);
         } catch (ItemNotFoundException excep) {
             ClassNotDef exc = new ClassNotDef(className, node.line, node.col);
             node.relatedErrors.add(exc);
             return false;
         }
         return true;
-    }
-
-    public SymbolTable getClassSymbolByName(String name) {
-        SymbolTable root = SymbolTable.root;
-        ClassSymbolTableItem classSymbolItem = new ClassSymbolTableItem(name);
-        try {
-            classSymbolItem = (ClassSymbolTableItem) root.get(name);
-        } catch (ItemNotFoundException exc) {
-            // nothing
-        }
-        return classSymbolItem.getSymbolTable();
     }
 
     public String getParentByName(String name) throws ParentNotFoundException {
@@ -353,6 +322,8 @@ public class TypeCheck implements Visitor<Type> {
     }
 
     public Boolean isSubType(Type subType, Type superType) {
+        if (subType instanceof UndefinedType || superType instanceof UndefinedType)
+            return true;
         if (hasSamePrimitiveType(subType,superType))
             return true;
         if (!(subType instanceof UserDefinedType && superType instanceof UserDefinedType))
@@ -371,38 +342,25 @@ public class TypeCheck implements Visitor<Type> {
         return true;
     }
 
+    public SymbolTable getClassSymbolByName(String name) {
+        SymbolTable root = SymbolTable.root;
+        ClassSymbolTableItem classSymbolItem = new ClassSymbolTableItem(name);
+        try {
+            classSymbolItem = (ClassSymbolTableItem) root.get("class_" + name);
+        } catch (ItemNotFoundException exc) {
+            // nothing
+        }
+        return classSymbolItem.getSymbolTable();
+    }
+
     public MethodSymbolTableItem findMethod(String className, String methodName) throws ItemNotFoundException {
-//        while (true) {
-//            SymbolTable classSymbol = getClassSymbolByName(className);
-//            try {
-//                MethodSymbolTableItem methodItem = (MethodSymbolTableItem)classSymbol.get(methodName);
-//                return methodItem;
-//            } catch (ItemNotFoundException exc1) {
-//                try {
-//                    className = getParentByName(className);
-//                } catch (ParentNotFoundException exc2) {
-//                    throw new ClassMemberNotFoundException();
-//                }
-//            }
-//        }
-        return (MethodSymbolTableItem)SymbolTable.top().get("method_" + methodName);
+        SymbolTable classSymbol = getClassSymbolByName(className);
+        return (MethodSymbolTableItem)classSymbol.get("method_" + methodName);
     }
 
     public FieldSymbolTableItem findField(String className, String fieldName) throws ItemNotFoundException {
-//        while (true) {
-//            SymbolTable classSymbol = getClassSymbolByName(className);
-//            try {
-//                FieldSymbolTableItem fieldItem = (FieldSymbolTableItem)classSymbol.get(fieldName);
-//                return fieldItem;
-//            } catch (ItemNotFoundException exc1) {
-//                try {
-//                    className = getParentByName(className);
-//                } catch (ParentNotFoundException exc2) {
-//                    throw new ClassMemberNotFoundException();
-//                }
-//            }
-//        }
-        return (FieldSymbolTableItem)SymbolTable.top().get("var_" + fieldName);
+        SymbolTable classSymbol = getClassSymbolByName(className);
+        return (FieldSymbolTableItem)classSymbol.get("var_" + fieldName);
     }
 
 
@@ -410,9 +368,9 @@ public class TypeCheck implements Visitor<Type> {
         if (!(exprType instanceof UserDefinedType || (exprType instanceof ArrayType && memberName.equals("length")))) {
             UnsupportOperand exc = new UnsupportOperand(memberCall.toString(), memberCall.line, memberCall.col);
             memberCall.relatedErrors.add(exc);
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     public Boolean fieldMethodCallCheck(Expression memberCall, Type exprType, String memberName) {
@@ -428,66 +386,65 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(MethodCall methodCall) {
-        System.out.println(methodCall.line);
         Type exprType = methodCall.getInstance().accept(this);
         if (exprType instanceof UndefinedType)
             return new UndefinedType();
-        Boolean unDef = !fieldMethodCallCheck(methodCall, exprType, methodCall.getMethodName().getName());
-        methodCall.getMethodName().accept(this);
+        if (!fieldMethodCallCheck(methodCall, exprType, methodCall.getMethodName().getName()))
+            return new UndefinedType();
+//        methodCall.getMethodName().accept(this);
 
         UserDefinedType exprUserType = (UserDefinedType)exprType;
         String className = exprUserType.getClassDeclaration().getName().getName();
         String methodName = methodCall.getMethodName().getName();
-        Type methodType = new NoType();
+        Type methodType;
+        MethodSymbolTableItem methodItem;
         try {
-            MethodSymbolTableItem methodItem = findMethod(className, methodName);
+            methodItem = findMethod(className, methodName);
             methodType = methodItem.getReturnType();
-            if (methodItem.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PRIVATE && !(methodCall.getInstance() instanceof Self)) {
-                PrivateCall exc = new PrivateCall("Method", methodName, className, methodCall.line, methodCall.col);
-                methodCall.relatedErrors.add(exc);
-            }
         } catch (ItemNotFoundException exception) {
             MethodClassNotDeclared exc = new MethodClassNotDeclared(className, methodName, methodCall.line, methodCall.col);
             methodCall.relatedErrors.add(exc);
+            return new UndefinedType();
         }
         // parameter type check
-        try{
-            MethodSymbolTableItem methodItem = findMethod(className, methodName);
-            List<Type> argTypes = methodItem.getArgumentsTypes();
-            if (argTypes.size() != methodCall.getArgs().size()) {
-                LessOrMoreArgs ee = new LessOrMoreArgs(methodCall.line, methodCall.col);
-                methodCall.relatedErrors.add(ee);
-            }
-            else{
-                for(int i=0; i < argTypes.size();i+=1){
-                    Type subType = methodCall.getArgs().get(i).accept(this);
-                    if(!isSubType(subType,argTypes.get(i))){
-                        AssignNotTypeCheck ee = new AssignNotTypeCheck(methodCall.line, methodCall.col);
-                        methodCall.relatedErrors.add(ee);
-                    }
+        List<Type> argTypes = methodItem.getArgumentsTypes();
+        if (argTypes.size() != methodCall.getArgs().size()) {
+            MethodClassNotDeclared exc = new MethodClassNotDeclared(className, methodName, methodCall.line, methodCall.col);
+            methodCall.relatedErrors.add(exc);
+            return new UndefinedType();
+        } else {
+            for(int i=0; i < argTypes.size();i+=1){
+                Type subType = methodCall.getArgs().get(i).accept(this);
+                if(!isSubType(subType,argTypes.get(i))){
+                    AssignNotTypeCheck ee = new AssignNotTypeCheck(methodCall.line, methodCall.col);
+                    methodCall.relatedErrors.add(ee);
+                    return new UndefinedType();
                 }
             }
-        }catch (ItemNotFoundException exception){
-
         }
-        if (unDef)
-            return new UndefinedType();
-        else
-            return methodType;
+        // check access
+        if (methodItem.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PRIVATE && !(methodCall.getInstance() instanceof Self)) {
+            PrivateCall exc = new PrivateCall("Method", methodName, className, methodCall.line, methodCall.col);
+            methodCall.relatedErrors.add(exc);
+        }
+        return methodType;
     }
 
     @Override
     public Type visit(FieldCall fieldCall) {
         Type exprType = fieldCall.getInstance().accept(this);
-        Boolean unDef = !fieldMethodCallCheck(fieldCall, exprType, fieldCall.getField().getName());
-        fieldCall.getField().accept(this);
+        if (exprType instanceof UndefinedType)
+            return new UndefinedType();
+        if (!fieldMethodCallCheck(fieldCall, exprType, fieldCall.getField().getName()))
+            return new UndefinedType();
+   //     fieldCall.getField().accept(this);
 
         if (exprType instanceof ArrayType)
             return new IntType();
         UserDefinedType exprUserType = (UserDefinedType)exprType;
         String className = exprUserType.getClassDeclaration().getName().getName();
         String fieldName = fieldCall.getField().getName();
-        Type fieldType = new UndefinedType();
+        Type fieldType;
         try {
             FieldSymbolTableItem fieldItem = findField(className, fieldName);
             fieldType = fieldItem.getVarType();
@@ -498,17 +455,16 @@ public class TypeCheck implements Visitor<Type> {
         } catch (ItemNotFoundException exception) {
             FieldClassNotDeclared exc = new FieldClassNotDeclared(className, fieldName, fieldCall.line, fieldCall.col);
             fieldCall.relatedErrors.add(exc);
-            unDef = true;
+            return new UndefinedType();
         }
 
-        if (unDef)
-            return new UndefinedType();
-        else
-            return fieldType;
+        return fieldType;
     }
 
     @Override
     public Type visit(Identifier identifier) {
+        if (!inFunc)
+            return new AnonymousType();
         try{
             SymbolTableItem sti =  SymbolTable.top().get("var_" + identifier.getName());
             if (sti instanceof FieldSymbolTableItem){
@@ -516,7 +472,6 @@ public class TypeCheck implements Visitor<Type> {
             }
             else if (sti instanceof LocalVariableSymbolTableItem){
                 LocalVariableSymbolTableItem localVar = (LocalVariableSymbolTableItem) sti;
-
                 if (localVar.getIndex() > numVar) {
                     VariableNotDeclared ee = new VariableNotDeclared(identifier.getName(),identifier.line,identifier.col);
                     identifier.relatedErrors.add(ee);
@@ -526,10 +481,11 @@ public class TypeCheck implements Visitor<Type> {
                     return localVar.getVarType();
             }
         } catch(ItemNotFoundException e){
-
+            VariableNotDeclared ee = new VariableNotDeclared(identifier.getName(),identifier.line,identifier.col);
+            identifier.relatedErrors.add(ee);
+            return new UndefinedType();
         }
-
-        return null;
+        return new NoType();
     }
 
     @Override
@@ -578,7 +534,7 @@ public class TypeCheck implements Visitor<Type> {
             ArraySize exc = new ArraySize(newArray.line, newArray.col);
             newArray.relatedErrors.add(exc);
         }
-        return new NoType();
+        return new ArrayType(newArray.getType());
     }
 
     @Override
@@ -606,6 +562,8 @@ public class TypeCheck implements Visitor<Type> {
     public Type visit(ArrayCall arrayCall) {
         Type exprType = arrayCall.getInstance().accept(this);
         Type indType = arrayCall.getIndex().accept(this);
+        if (exprType instanceof UndefinedType || indType instanceof UndefinedType)
+            return new UndefinedType();
         if (!(exprType instanceof ArrayType && indType instanceof IntType)) {
             UnsupportOperand exc = new UnsupportOperand(arrayCall.toString(), arrayCall.line, arrayCall.col);
             arrayCall.relatedErrors.add(exc);
@@ -617,7 +575,7 @@ public class TypeCheck implements Visitor<Type> {
     public Type visit(NotEquals notEquals) {
         Type lValue = notEquals.getLhs().accept(this);
         Type rValue = notEquals.getRhs().accept(this);
-        if(rValue.toString() != lValue.toString()){
+        if(hasSamePrimitiveType(lValue,rValue)) {
             UnsupportOperand ee = new UnsupportOperand(notEquals.toString(),notEquals.line,notEquals.col);
             notEquals.relatedErrors.add(ee);
         }
@@ -626,6 +584,7 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(LocalVarDef localVarDef) {
+        numVar += 1;
         localVarDef.getLocalVarName().accept(this);
         Type type = localVarDef.getInitialValue().accept(this);
         try{
@@ -648,9 +607,10 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(IncStatement incStatement) {
         Type type = incStatement.getOperand().accept(this);
-
+        if (type instanceof UndefinedType)
+            return null;
         Expression exp = incStatement.getOperand();
-        if (isLValue(exp)) {
+        if (!isLValue(exp)) {
             RvalueDecInc ee = new RvalueDecInc(incStatement.toString(), incStatement.line, incStatement.col);
             incStatement.relatedErrors.add(ee);
         }
@@ -664,7 +624,8 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(DecStatement decStatement) {
         Type type = decStatement.getOperand().accept(this);
-
+        if (type instanceof UndefinedType)
+            return null;
         Expression exp = decStatement.getOperand();
         if (!isLValue(exp)) {
             RvalueDecInc ee = new RvalueDecInc(decStatement.toString(),decStatement.line,decStatement.col);
@@ -689,7 +650,8 @@ public class TypeCheck implements Visitor<Type> {
     public Type visit(Assign assign) {
         Type lValueType = assign.getLvalue().accept(this);
         Type rValueType = assign.getRvalue().accept(this);
-
+        if (lValueType instanceof UndefinedType || rValueType instanceof UndefinedType)
+            return new NoType();
         Expression exp = assign.getLvalue();
         // lValue check
         if (!isLValue(exp)) {
@@ -716,7 +678,11 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(ClassDeclaration classDeclaration) {
+        SymbolTable.pushFromQueue();
         visitClassBody(classDeclaration);
+        for (ClassMemberDeclaration md : classDeclaration.getClassMembers())
+            md.accept(this);
+        SymbolTable.pop();
         return null;
     }
 
@@ -729,15 +695,27 @@ public class TypeCheck implements Visitor<Type> {
             }
             classDeclaration.getParentName().accept(this);
         }
-        SymbolTable.pushFromQueue();
-        for (ClassMemberDeclaration md : classDeclaration.getClassMembers())
-            md.accept(this);
-        SymbolTable.pop();
     }
 
     @Override
     public Type visit(EntryClassDeclaration entryClassDeclaration) {
+        SymbolTable.pushFromQueue();
         visitClassBody(entryClassDeclaration);
+        for (ClassMemberDeclaration md : entryClassDeclaration.getClassMembers())
+            md.accept(this);
+        try {
+            MethodSymbolTableItem mst = (MethodSymbolTableItem) SymbolTable.top().get("method_main");
+            Type methodType = mst.getReturnType();
+            if (!(mst.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PUBLIC && methodType.toString().equals("(IntType)") && mst.getArgumentsTypes().size()==0)){
+                MainClassInEntry ee = new MainClassInEntry();
+                entryClassDeclaration.relatedErrors.add(ee);
+            }
+
+        }catch (ItemNotFoundException exc){
+            MainClassInEntry ee = new MainClassInEntry();
+            entryClassDeclaration.relatedErrors.add(ee);
+        }
+        SymbolTable.pop();
         return null;
     }
 
@@ -749,7 +727,7 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(ParameterDeclaration parameterDeclaration) {
-        parameterDeclaration.getIdentifier().accept(this);
+ //       parameterDeclaration.getIdentifier().accept(this);
         return null;
     }
 
@@ -757,13 +735,13 @@ public class TypeCheck implements Visitor<Type> {
     public Type visit(MethodDeclaration methodDeclaration) {
         numVar =0;
         methodDeclaration.getName().accept(this);
+        SymbolTable.pushFromQueue();
         for (ParameterDeclaration pd : methodDeclaration.getArgs()) {
             pd.accept(this);
             numVar +=1;
         }
         inFunc = true;
         loopDep = 0;
-        SymbolTable.pushFromQueue();
         for (Statement stmt : methodDeclaration.getBody())
             stmt.accept(this);
         SymbolTable.pop();

@@ -34,18 +34,20 @@ public class ReportingPass implements Visitor<Void> {
         if (node.relatedErrors.size() > 0)
             hasError = true;
         return null;
-
     }
 
     @Override
     public Void visit(PrintLine printStat) {
         printRelatedErrors(printStat);
+        printStat.getArg().accept(this);
         return null;
     }
 
     @Override
     public Void visit(Assign assignStat) {
         printRelatedErrors(assignStat);
+        assignStat.getLvalue().accept(this);
+        assignStat.getRvalue().accept(this);
         return null;
     }
 
@@ -60,6 +62,7 @@ public class ReportingPass implements Visitor<Void> {
     @Override
     public Void visit(Conditional conditional) {
         printRelatedErrors(conditional);
+        conditional.getCondition().accept(this);
         conditional.getThenStatement().accept(this);
         conditional.getElseStatement().accept(this);
         return null;
@@ -68,6 +71,7 @@ public class ReportingPass implements Visitor<Void> {
     @Override
     public Void visit(While whileStat) {
         printRelatedErrors(whileStat);
+        whileStat.expr.accept(this);
         whileStat.body.accept(this);
         return null;
     }
@@ -75,6 +79,7 @@ public class ReportingPass implements Visitor<Void> {
     @Override
     public Void visit(Return returnStat) {
         printRelatedErrors(returnStat);
+        returnStat.getReturnedExpr().accept(this);
         return null;
     }
 
@@ -99,96 +104,127 @@ public class ReportingPass implements Visitor<Void> {
     @Override
     public Void visit(LocalVarDef localVarDef) {
         printRelatedErrors(localVarDef);
+        localVarDef.getLocalVarName().accept(this);
+        localVarDef.getInitialValue().accept(this);
         return null;
     }
 
     @Override
     public Void visit(IncStatement incStatement) {
         printRelatedErrors(incStatement);
+        incStatement.getOperand().accept(this);
         return null;
     }
 
     @Override
     public Void visit(DecStatement decStatement) {
         printRelatedErrors(decStatement);
+        decStatement.getOperand().accept(this);
         return null;
     }
 
     @Override
     public Void visit(Plus plusExpr) {
         printRelatedErrors(plusExpr);
+        plusExpr.getLhs().accept(this);
+        plusExpr.getRhs().accept(this);
         return null;
     }
 
     @Override
     public Void visit(Minus minusExpr) {
         printRelatedErrors(minusExpr);
+        minusExpr.getLhs().accept(this);
+        minusExpr.getRhs().accept(this);
         return null;
     }
 
     @Override
     public Void visit(Times timesExpr) {
         printRelatedErrors(timesExpr);
+        timesExpr.getLhs().accept(this);
+        timesExpr.getRhs().accept(this);
         return null;
     }
 
     @Override
     public Void visit(Division divExpr) {
         printRelatedErrors(divExpr);
+        divExpr.getLhs().accept(this);
+        divExpr.getRhs().accept(this);
         return null;
     }
 
     @Override
     public Void visit(Modulo moduloExpr) {
         printRelatedErrors(moduloExpr);
+        moduloExpr.getLhs().accept(this);
+        moduloExpr.getRhs().accept(this);
         return null;
     }
 
     @Override
     public Void visit(Equals equalsExpr) {
         printRelatedErrors(equalsExpr);
+        equalsExpr.getLhs().accept(this);
+        equalsExpr.getRhs().accept(this);
         return null;
     }
 
     @Override
     public Void visit(GreaterThan gtExpr) {
         printRelatedErrors(gtExpr);
+        gtExpr.getLhs().accept(this);
+        gtExpr.getRhs().accept(this);
         return null;
     }
 
     @Override
     public Void visit(LessThan lessThanExpr) {
         printRelatedErrors(lessThanExpr);
+        lessThanExpr.getLhs().accept(this);
+        lessThanExpr.getRhs().accept(this);
         return null;
     }
 
     @Override
     public Void visit(And andExpr) {
         printRelatedErrors(andExpr);
+        andExpr.getLhs().accept(this);
+        andExpr.getRhs().accept(this);
         return null;
     }
 
     @Override
     public Void visit(Or orExpr) {
         printRelatedErrors(orExpr);
+        orExpr.getLhs().accept(this);
+        orExpr.getRhs().accept(this);
         return null;
     }
 
     @Override
     public Void visit(Neg negExpr) {
         printRelatedErrors(negExpr);
+        negExpr.getExpr().accept(this);
         return null;
     }
 
     @Override
     public Void visit(Not notExpr) {
         printRelatedErrors(notExpr);
+        notExpr.getExpr().accept(this);
         return null;
     }
 
     @Override
     public Void visit(MethodCall methodCall) {
         printRelatedErrors(methodCall);
+        methodCall.getInstance().accept(this);
+        methodCall.getMethodName().accept(this);
+        for (Expression arg : methodCall.getArgs()) {
+            arg.accept(this);
+        }
         return null;
     }
 
@@ -237,18 +273,24 @@ public class ReportingPass implements Visitor<Void> {
     @Override
     public Void visit(FieldCall fieldCall) {
         printRelatedErrors(fieldCall);
+        fieldCall.getInstance().accept(this);
+        fieldCall.getField().accept(this);
         return null;
     }
 
     @Override
     public Void visit(ArrayCall arrayCall) {
         printRelatedErrors(arrayCall);
+        arrayCall.getInstance().accept(this);
+        arrayCall.getIndex().accept(this);
         return null;
     }
 
     @Override
     public Void visit(NotEquals notEquals) {
         printRelatedErrors(notEquals);
+        notEquals.getLhs().accept(this);
+        notEquals.getRhs().accept(this);
         return null;
     }
 
@@ -276,12 +318,14 @@ public class ReportingPass implements Visitor<Void> {
     @Override
     public Void visit(ParameterDeclaration parameterDeclaration) {
         printRelatedErrors(parameterDeclaration);
+        parameterDeclaration.getIdentifier().accept(this);
         return null;
     }
 
     @Override
     public Void visit(MethodDeclaration methodDeclaration) {
         printRelatedErrors(methodDeclaration);
+        methodDeclaration.getName().accept(this);
         for (ParameterDeclaration pd : methodDeclaration.getArgs())
             pd.accept(this);
         for (Statement stmt : methodDeclaration.getBody())
@@ -300,9 +344,8 @@ public class ReportingPass implements Visitor<Void> {
 
     @Override
     public Void visit(Program program) {
-
         for (ClassDeclaration cd : program.getClasses()) {
-        cd.accept(this);
+            cd.accept(this);
         }
         return null;
     }

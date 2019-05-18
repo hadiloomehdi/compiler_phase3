@@ -1,12 +1,14 @@
 
 entry class Sample1 :
-    function main() returns int :
+    function man() returns int :
         var array_size = 10;
         var array = new int[ array_size ];
         var i = 0;
-        if( i ) begin
-            continue;
-            break;
+        if( i == 0) begin
+            while (true) begin
+                continue;
+                break;
+            end
         end
         while( i < array_size ) begin
             if( i == array_size / 2 ) begin
@@ -18,10 +20,10 @@ entry class Sample1 :
         end
         i = 0;
         while( i < array_size ) begin
-            var val = new BinarySearch().doSearch( 1 , 0 , array.length - 1 );
-            val = new BinarySearch().doSearch( 0 , array.length - 1 );
+            var val = new BinarySearch().doSearch( 1, 0, array.length - 1 );
+            val = new BinarySearch().doSearch( 1, array.length - 1 , 2);
         end
-        return false;
+        return array_size*i;
     end
 end
 
@@ -29,17 +31,17 @@ end
 class BinarySearch :
     private field data int[];
 
-    private function doSearch( value : int , _begin : int , _end : int ) returns int:
+    public function doSearch( value : int , _begin : int , _end : int ) returns int:
         var middle = ( _begin + _end ) / 2;
         var foundVal = doSearch( value , _begin , middle );
-        if( !foundVal )
+        if (foundVal == 0)
             foundVal = doSearch( value , middle + 1 , _end );
-        return foundVal + new BinarySearch().data.length;
+        return foundVal + self.data.length;
     end
 
     public function find( value : int ) returns int:
-        var value1 = _doSearch( value , 0 , _data.length - 1 ).toString();
-        return doSearch( value , 0 , data.length - 1 ).toString();
+        var value1 = doSearch( value , 0 , data.length - 1 );
+        return doSearch( value , 0 , data.length - 1 );
     end
 
 

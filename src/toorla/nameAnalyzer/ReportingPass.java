@@ -275,7 +275,7 @@ public class ReportingPass implements Visitor<Integer>, INameAnalyzingPass<Void>
     @Override
     public void analyze(Program program) {
         int numOfErrors = this.visit(program);
-        if( numOfErrors != 0 )
+        if (numOfErrors != 0)
             System.exit( 1 );
     }
 
