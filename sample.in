@@ -1,52 +1,5 @@
-class Test1 inherits MainTest :
-end
-
-
-
-class Test5 :
-    function returnSelf() returns Test5:
-        return self;
+entry class Hadi:
+    function main() returns int:
+        var a = a+1;
     end
-end
-
-
-//no entry class found in MainTest
-entry class MainTest inherits Test2 :
-    public field x , y int;
-    public function main(args: string[], tempArg: Test /* 1 */ ) returns int:
-        hadi = 3;
-        testObj = new Test5(); // 1
-        begin
-            var falseVar = false;
-            if( x == 2 )
-                falseVar = true;
-            var boolean = true && ( falseVar || false ) && falseVar;
-            x = boolean; // 1
-            var testObj = new Test3[ 3 ];
-            begin
-                var MainTestArr = new MainTest[ 4 ];
-                print(MainTestArr.length_field); //1
-                testObj = MainTestArr; // 1
-                var test1Var = new Test1();
-                test1Var = new Test3(); // 1
-            end
-        end
-        return 0;
-    end
-
-end
-
-
-
-class Test2 inherits Test3 :
-    field testObj MainTest;
-end
-
-
-class Test3:
-
-    public function main1(args: string[]) returns Test3:
-        return new Test3();
-    end
-
 end

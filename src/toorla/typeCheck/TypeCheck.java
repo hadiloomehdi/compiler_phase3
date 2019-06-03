@@ -198,7 +198,7 @@ public class TypeCheck implements Visitor<Type> {
         Type rValue = moduloExpr.getRhs().accept(this);
         if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
-        if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
+        if(!(rValue instanceof IntType && lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(moduloExpr.toString(),moduloExpr.line,moduloExpr.col);
             moduloExpr.relatedErrors.add(ee);
             return new UndefinedType();
@@ -353,6 +353,7 @@ public class TypeCheck implements Visitor<Type> {
         }
         return true;
     }
+
 
     public SymbolTable getClassSymbolByName(String name) {
         SymbolTable root = SymbolTable.root;
@@ -596,8 +597,7 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(LocalVarDef localVarDef) {
-        numVar += 1;
-        localVarDef.getLocalVarName().accept(this);
+//        localVarDef.getLocalVarName().accept(this);
         Type type = localVarDef.getInitialValue().accept(this);
         try{
             LocalVariableSymbolTableItem localVarSybmbolTable =  (LocalVariableSymbolTableItem)SymbolTable.top().get(VarSymbolTableItem.var_modifier + localVarDef.getLocalVarName().getName());
@@ -605,6 +605,7 @@ public class TypeCheck implements Visitor<Type> {
         }catch (Exception e){
             // dont occur
         }
+        numVar += 1;
         return new NoType();
     }
 
