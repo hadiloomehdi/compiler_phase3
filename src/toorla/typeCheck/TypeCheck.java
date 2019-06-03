@@ -206,13 +206,21 @@ public class TypeCheck implements Visitor<Type> {
         return new IntType();
     }
 
+    public boolean isSameObj(Type a, Type b)  {
+        if (!(a instanceof UserDefinedType && b instanceof UserDefinedType))
+            return false;
+        String aName = ((UserDefinedType)a).getClassDeclaration().getName().getName();
+        String bName = ((UserDefinedType)a).getClassDeclaration().getName().getName();
+        return aName.equals(bName);
+    }
+
     @Override
     public Type visit(Equals equalsExpr) {
         Type lValue = equalsExpr.getLhs().accept(this);
         Type rValue = equalsExpr.getRhs().accept(this);
         if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
-        if (!hasSamePrimitiveType(lValue , rValue)) {
+        if (!(hasSamePrimitiveType(lValue , rValue) || isSameObj(lValue, rValue))) {
             UnsupportOperand ee = new UnsupportOperand(equalsExpr.toString(),equalsExpr.line,equalsExpr.col);////array
             equalsExpr.relatedErrors.add(ee);
             return new UndefinedType();
@@ -581,14 +589,14 @@ public class TypeCheck implements Visitor<Type> {
             UnsupportOperand exc = new UnsupportOperand(arrayCall.toString(), arrayCall.line, arrayCall.col);
             arrayCall.relatedErrors.add(exc);
         }
-        return null;
+        return ((ArrayType)exprType).getSingleType();
     }
 
     @Override
     public Type visit(NotEquals notEquals) {
         Type lValue = notEquals.getLhs().accept(this);
         Type rValue = notEquals.getRhs().accept(this);
-        if(hasSamePrimitiveType(lValue,rValue)) {
+        if (!(hasSamePrimitiveType(lValue,rValue) || isSameObj(lValue, rValue))) {
             UnsupportOperand ee = new UnsupportOperand(notEquals.toString(),notEquals.line,notEquals.col);
             notEquals.relatedErrors.add(ee);
         }
@@ -611,7 +619,7 @@ public class TypeCheck implements Visitor<Type> {
 
     public Boolean isLValue(Expression exp)
     {
-        if ((exp instanceof FieldCall) || (exp instanceof Identifier && inFunc) || (exp instanceof ArrayCall))
+        if ((exp instanceof FieldCall && ((FieldCall)exp).getField().getName()!="length") || (exp instanceof Identifier && inFunc) || (exp instanceof ArrayCall))
             return true;
         else
             return false;

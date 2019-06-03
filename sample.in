@@ -1,5 +1,11 @@
 entry class Hadi:
     function main() returns int:
-        var a = a+1;
+        var a = new Mahdi();
+        var b = new Mahdi();
+        var c = (a==b);
     end
+end
+
+class Mahdi:
+
 end
