@@ -156,7 +156,7 @@ public class TypeCheck implements Visitor<Type> {
         Type rValue = minusExpr.getRhs().accept(this);
         if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
-        if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
+        if(!(rValue instanceof IntType && lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(minusExpr.toString(),minusExpr.line,minusExpr.col);
             minusExpr.relatedErrors.add(ee);
             return new UndefinedType();
@@ -170,7 +170,7 @@ public class TypeCheck implements Visitor<Type> {
         Type rValue = timesExpr.getRhs().accept(this);
         if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
-        if(!(rValue instanceof IntType ) && !(lValue instanceof IntType)){
+        if(!(rValue instanceof IntType  && lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(timesExpr.toString(),timesExpr.line,timesExpr.col);
             timesExpr.relatedErrors.add(ee);
             return new UndefinedType();
@@ -184,7 +184,7 @@ public class TypeCheck implements Visitor<Type> {
         Type rValue = divisionExpr.getRhs().accept(this);
         if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
-        if(!(rValue instanceof IntType ) && !(lValue instanceof IntType)){
+        if(!(rValue instanceof IntType  && lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(divisionExpr.toString(),divisionExpr.line,divisionExpr.col);
             divisionExpr.relatedErrors.add(ee);
             return new UndefinedType();
@@ -198,7 +198,7 @@ public class TypeCheck implements Visitor<Type> {
         Type rValue = moduloExpr.getRhs().accept(this);
         if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
-        if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
+        if(!(rValue instanceof IntType && lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(moduloExpr.toString(),moduloExpr.line,moduloExpr.col);
             moduloExpr.relatedErrors.add(ee);
             return new UndefinedType();
@@ -226,7 +226,7 @@ public class TypeCheck implements Visitor<Type> {
         Type rValue = gtExpr.getRhs().accept(this);
         if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
-        if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
+        if(!(rValue instanceof IntType && lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(gtExpr.toString(),gtExpr.line,gtExpr.col);
             gtExpr.relatedErrors.add(ee);
             return new UndefinedType();
@@ -240,7 +240,7 @@ public class TypeCheck implements Visitor<Type> {
         Type rValue = ltExpr.getRhs().accept(this);
         if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
-        if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
+        if(!(rValue instanceof IntType && lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(ltExpr.toString(),ltExpr.line,ltExpr.col);
             ltExpr.relatedErrors.add(ee);
             return new UndefinedType();
@@ -254,7 +254,7 @@ public class TypeCheck implements Visitor<Type> {
         Type rValue = andExpr.getRhs().accept(this);
         if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
-        if(!(rValue instanceof BoolType) && !(lValue instanceof BoolType)){
+        if(!(rValue instanceof BoolType && lValue instanceof BoolType)){
             UnsupportOperand ee = new UnsupportOperand(andExpr.toString(),andExpr.line,andExpr.col);
             andExpr.relatedErrors.add(ee);
             return new UndefinedType();
@@ -268,7 +268,7 @@ public class TypeCheck implements Visitor<Type> {
         Type rValue = orExpr.getRhs().accept(this);
         if (lValue instanceof UndefinedType || rValue instanceof UndefinedType)
             return new UndefinedType();
-        if(!(rValue instanceof BoolType) && !(lValue instanceof BoolType)){
+        if(!(rValue instanceof BoolType && lValue instanceof BoolType)){
             UnsupportOperand ee = new UnsupportOperand(orExpr.toString(),orExpr.line,orExpr.col);
             orExpr.relatedErrors.add(ee);
             return new UndefinedType();
@@ -623,7 +623,7 @@ public class TypeCheck implements Visitor<Type> {
             return null;
         Expression exp = incStatement.getOperand();
         if (!isLValue(exp)) {
-            RvalueDecInc ee = new RvalueDecInc(incStatement.toString(), incStatement.line, incStatement.col);
+            RvalueDecInc ee = new RvalueDecInc("Inc", incStatement.line, incStatement.col);
             incStatement.relatedErrors.add(ee);
         }
         if(!(type instanceof IntType )){
@@ -640,7 +640,7 @@ public class TypeCheck implements Visitor<Type> {
             return null;
         Expression exp = decStatement.getOperand();
         if (!isLValue(exp)) {
-            RvalueDecInc ee = new RvalueDecInc(decStatement.toString(),decStatement.line,decStatement.col);
+            RvalueDecInc ee = new RvalueDecInc("Dec",decStatement.line,decStatement.col);
             decStatement.relatedErrors.add(ee);
         }
         if(!(type instanceof IntType )){
