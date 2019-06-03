@@ -15,6 +15,6 @@ public class PrivateCall extends CompileErrorException {
     }
 
     public String toString(){
-        return String.format("Error:Line:%d:Illegal access to %s %s of an object of Class %s", atLine,MorF,memberName,className);
+        return String.format("Error:Line:%d:Illegal access to %s %s of an object of class %s;", atLine,MorF,memberName,className);
     }
 }

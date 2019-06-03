@@ -13,7 +13,7 @@ public class MethodClassNotDeclared extends CompileErrorException {
     }
 
     public String toString(){
-        return String.format("Error:Line:%d:There is no Method with name %s with such parameters in class %s", atLine, methodName,className);
+        return String.format("Error:Line:%d:There is no Method with name %s with such parameters in class %s;", atLine, methodName,className);
     }
 
 }

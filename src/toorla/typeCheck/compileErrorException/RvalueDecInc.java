@@ -11,7 +11,7 @@ public class RvalueDecInc extends CompileErrorException {
     }
 
     public String toString(){
-        return String.format("Error:Line:%d:Operand of %s must be a valid lvalue", atLine,DorI);
+        return String.format("Error:Line:%d:Operand of %s must be a valid lvalue;", atLine,DorI);
     }
 
 }

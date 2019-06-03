@@ -304,7 +304,7 @@ public class ReportingPass implements Visitor<Void> {
 
     @Override
     public Void visit(EntryClassDeclaration entryClassDeclaration) {
-        printRelatedErrors(entryClassDeclaration);
+//        printRelatedErrors(entryClassDeclaration);
         this.visit((ClassDeclaration) entryClassDeclaration);
         return null;
     }

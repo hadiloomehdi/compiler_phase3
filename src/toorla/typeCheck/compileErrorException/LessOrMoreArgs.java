@@ -8,6 +8,6 @@ public class LessOrMoreArgs extends CompileErrorException {
     }
 
     public String toString(){
-        return String.format("Error:Line:%d:Number of arguments does not match in function", atLine);
+        return String.format("Error:Line:%d:Number of arguments does not match in function;", atLine);
     }
 }

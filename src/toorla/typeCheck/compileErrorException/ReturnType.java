@@ -11,6 +11,6 @@ public class ReturnType extends CompileErrorException {
     }
 
     public String toString(){
-        return String.format("Error:Line:%d:Expression returned by this method must be %s", atLine,returnType);
+        return String.format("Error:Line:%d:Expression returned by this method must be %s;", atLine,returnType);
     }
 }

@@ -9,6 +9,6 @@ public class Rvalue extends CompileErrorException {
     }
 
     public String toString(){
-        return String.format("Error:Line:%d:Left hand side expression is not assignable", atLine);
+        return String.format("Error:Line:%d:Left hand side expression is not assignable;", atLine);
     }
 }

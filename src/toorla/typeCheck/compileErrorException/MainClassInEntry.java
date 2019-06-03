@@ -7,6 +7,6 @@ public class MainClassInEntry extends CompileErrorException {
     }
 
     public String toString(){
-        return String.format("Error:There is no Main class in entry");
+        return String.format("Error:There is no main function ( return int with no argument ) in entry class;");
     }
 }

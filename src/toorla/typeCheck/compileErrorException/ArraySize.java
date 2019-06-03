@@ -10,7 +10,7 @@ public class ArraySize extends CompileErrorException {
     }
 
     public String toString(){
-        return String.format("Error:Line:%d:Size of an array must be of type integer", atLine);
+        return String.format("Error:Line:%d:Size of an array must be of type integer;", atLine);
     }
 
 }

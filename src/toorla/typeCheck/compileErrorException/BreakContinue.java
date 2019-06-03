@@ -12,6 +12,6 @@ public class BreakContinue extends CompileErrorException {
 
     @Override
     public String toString() {
-        return String.format("Error:Line:%d:Invalid use of %s, %s  must be used as loop statement", atLine,name,name);
+        return String.format("Error:Line:%d:Invalid use of %s, %s must be used as loop statement;", atLine,name,name);
     }
 }

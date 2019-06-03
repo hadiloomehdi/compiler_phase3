@@ -8,6 +8,6 @@ public class PrintArg extends CompileErrorException {
     }
 
     public String toString(){
-        return String.format("Error:Line:%d:Type of parameter of print built-in function must be integer , string or array of integer", atLine);
+        return String.format("Error:Line:%d:Type of parameter of print built-in function must be integer , string or array of integer;", atLine);
     }
 }

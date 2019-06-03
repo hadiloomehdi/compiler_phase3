@@ -92,7 +92,7 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(Conditional conditional) {
         Type cond = conditional.getCondition().accept(this);
-        if (!(cond instanceof BoolType)){
+        if (!(cond instanceof BoolType || cond instanceof UndefinedType)){
             ConditionNotBoolean ee = new ConditionNotBoolean(conditional.toString(),conditional.getCondition().line,conditional.getCondition().col);
             conditional.relatedErrors.add(ee);
         }
@@ -145,6 +145,7 @@ public class TypeCheck implements Visitor<Type> {
         if(!(rValue instanceof IntType && lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(plusExpr.toString(),plusExpr.line,plusExpr.col);
             plusExpr.relatedErrors.add(ee);
+            return new UndefinedType();
         }
         return new IntType();
     }
@@ -158,6 +159,7 @@ public class TypeCheck implements Visitor<Type> {
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(minusExpr.toString(),minusExpr.line,minusExpr.col);
             minusExpr.relatedErrors.add(ee);
+            return new UndefinedType();
         }
         return new IntType();
     }
@@ -171,6 +173,7 @@ public class TypeCheck implements Visitor<Type> {
         if(!(rValue instanceof IntType ) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(timesExpr.toString(),timesExpr.line,timesExpr.col);
             timesExpr.relatedErrors.add(ee);
+            return new UndefinedType();
         }
         return new IntType();
     }
@@ -184,6 +187,7 @@ public class TypeCheck implements Visitor<Type> {
         if(!(rValue instanceof IntType ) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(divisionExpr.toString(),divisionExpr.line,divisionExpr.col);
             divisionExpr.relatedErrors.add(ee);
+            return new UndefinedType();
         }
         return new IntType();
     }
@@ -197,6 +201,7 @@ public class TypeCheck implements Visitor<Type> {
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(moduloExpr.toString(),moduloExpr.line,moduloExpr.col);
             moduloExpr.relatedErrors.add(ee);
+            return new UndefinedType();
         }
         return new IntType();
     }
@@ -210,6 +215,7 @@ public class TypeCheck implements Visitor<Type> {
         if (!hasSamePrimitiveType(lValue , rValue)) {
             UnsupportOperand ee = new UnsupportOperand(equalsExpr.toString(),equalsExpr.line,equalsExpr.col);////array
             equalsExpr.relatedErrors.add(ee);
+            return new UndefinedType();
         }
         return new BoolType();
     }
@@ -223,6 +229,7 @@ public class TypeCheck implements Visitor<Type> {
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(gtExpr.toString(),gtExpr.line,gtExpr.col);
             gtExpr.relatedErrors.add(ee);
+            return new UndefinedType();
         }
         return new BoolType();
     }
@@ -236,6 +243,7 @@ public class TypeCheck implements Visitor<Type> {
         if(!(rValue instanceof IntType) && !(lValue instanceof IntType)){
             UnsupportOperand ee = new UnsupportOperand(ltExpr.toString(),ltExpr.line,ltExpr.col);
             ltExpr.relatedErrors.add(ee);
+            return new UndefinedType();
         }
         return new BoolType();
     }
@@ -249,6 +257,7 @@ public class TypeCheck implements Visitor<Type> {
         if(!(rValue instanceof BoolType) && !(lValue instanceof BoolType)){
             UnsupportOperand ee = new UnsupportOperand(andExpr.toString(),andExpr.line,andExpr.col);
             andExpr.relatedErrors.add(ee);
+            return new UndefinedType();
         }
         return new BoolType();
     }
@@ -262,6 +271,7 @@ public class TypeCheck implements Visitor<Type> {
         if(!(rValue instanceof BoolType) && !(lValue instanceof BoolType)){
             UnsupportOperand ee = new UnsupportOperand(orExpr.toString(),orExpr.line,orExpr.col);
             orExpr.relatedErrors.add(ee);
+            return new UndefinedType();
         }
         return new BoolType();
     }
@@ -274,6 +284,7 @@ public class TypeCheck implements Visitor<Type> {
         if (!(type instanceof IntType)) {
             UnsupportOperand ee = new UnsupportOperand(negExpr.toString(),negExpr.line, negExpr.col);
             negExpr.relatedErrors.add(ee);
+            return new UndefinedType();
         }
         return new IntType();
     }
@@ -286,6 +297,7 @@ public class TypeCheck implements Visitor<Type> {
         if (!(type instanceof BoolType)) {
             UnsupportOperand ee = new UnsupportOperand(notExpr.toString(),notExpr.line, notExpr.col);
             notExpr.relatedErrors.add(ee);
+            return new UndefinedType();
         }
         return new BoolType();
     }
@@ -332,7 +344,7 @@ public class TypeCheck implements Visitor<Type> {
         UserDefinedType superClass = (UserDefinedType)superType;
         String curName = subClass.getClassDeclaration().getName().getName();
         String finalName = superClass.getClassDeclaration().getName().getName();
-        while (curName.equals(finalName)) {
+        while (!curName.equals(finalName)) {
             try {
                 curName = getParentByName(curName);
             } catch (ParentNotFoundException exc) {
@@ -449,7 +461,7 @@ public class TypeCheck implements Visitor<Type> {
             FieldSymbolTableItem fieldItem = findField(className, fieldName);
             fieldType = fieldItem.getVarType();
             if (fieldItem.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PRIVATE && !(fieldCall.getInstance() instanceof Self)) {
-                PrivateCall exc = new PrivateCall("Method", fieldName, className, fieldCall.line, fieldCall.col);
+                PrivateCall exc = new PrivateCall("Field", fieldName, className, fieldCall.line, fieldCall.col);
                 fieldCall.relatedErrors.add(exc);
             }
         } catch (ItemNotFoundException exception) {
@@ -502,7 +514,7 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(Break breakStat) {
         if (inFunc && loopDep==0) {
-            BreakContinue exc = new BreakContinue(breakStat.toString(), breakStat.line, breakStat.col);
+            BreakContinue exc = new BreakContinue("Break", breakStat.line, breakStat.col);
             breakStat.relatedErrors.add(exc);
         }
         return null;
@@ -511,7 +523,7 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(Continue continueStat) {
         if (inFunc && loopDep==0) {
-            BreakContinue exc = new BreakContinue(continueStat.toString(), continueStat.line, continueStat.col);
+            BreakContinue exc = new BreakContinue("Continue", continueStat.line, continueStat.col);
             continueStat.relatedErrors.add(exc);
         }
         return new NoType();
@@ -591,7 +603,7 @@ public class TypeCheck implements Visitor<Type> {
             LocalVariableSymbolTableItem localVarSybmbolTable =  (LocalVariableSymbolTableItem)SymbolTable.top().get(VarSymbolTableItem.var_modifier + localVarDef.getLocalVarName().getName());
             localVarSybmbolTable.setVarType(type);
         }catch (Exception e){
-
+            // dont occur
         }
         return new NoType();
     }
@@ -706,7 +718,7 @@ public class TypeCheck implements Visitor<Type> {
         try {
             MethodSymbolTableItem mst = (MethodSymbolTableItem) SymbolTable.top().get("method_main");
             Type methodType = mst.getReturnType();
-            if (!(mst.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PUBLIC && methodType.toString().equals("(IntType)") && mst.getArgumentsTypes().size()==0)){
+            if (!(mst.getAccessModifier() == AccessModifier.ACCESS_MODIFIER_PUBLIC && methodType instanceof IntType && mst.getArgumentsTypes().size()==0)){
                 MainClassInEntry ee = new MainClassInEntry();
                 entryClassDeclaration.relatedErrors.add(ee);
             }
@@ -727,7 +739,21 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(ParameterDeclaration parameterDeclaration) {
- //       parameterDeclaration.getIdentifier().accept(this);
+        if (parameterDeclaration.getType() instanceof UserDefinedType) {
+            ClassDeclaration obj = ((UserDefinedType)parameterDeclaration.getType()).getClassDeclaration();
+            String className = obj.getName().getName();
+            if (!classNameMap.containsKey(className)) {
+                ClassNotDef exc = new ClassNotDef(className, parameterDeclaration.line, parameterDeclaration.col);
+                parameterDeclaration.relatedErrors.add(exc);
+            }
+        }
+        Type type = parameterDeclaration.getType();
+        try{
+            LocalVariableSymbolTableItem localVarSybmbolTable =  (LocalVariableSymbolTableItem)SymbolTable.top().get(VarSymbolTableItem.var_modifier + parameterDeclaration.getIdentifier().getName());
+            localVarSybmbolTable.setVarType(type);
+        } catch (Exception e){
+            // dont occur
+        }
         return null;
     }
 

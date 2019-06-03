@@ -11,6 +11,6 @@ public class UnsupportOperand extends CompileErrorException {
     }
 
     public String toString(){
-        return String.format("Error:Line:%d:Unsupported operand types for %s", atLine,operation);
+        return String.format("Error:Line:%d:Unsupported operand types for %s;", atLine,operation);
     }
 }

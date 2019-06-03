@@ -10,6 +10,6 @@ public class ClassNotDef extends CompileErrorException {
     }
 
     public String toString(){
-        return String.format("Error:Line:%d:There is no class with name %s", atLine,name);
+        return String.format("Error:Line:%d:There is no class with name %s;", atLine,name);
     }
 }

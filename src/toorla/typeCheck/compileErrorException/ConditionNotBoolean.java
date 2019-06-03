@@ -9,6 +9,6 @@ public class ConditionNotBoolean extends CompileErrorException {
         name = LorI;
     }
     public String toString(){
-        return String.format("Error:Line:%d:Condition type must be bool in %s statements", atLine, name);
+        return String.format("Error:Line:%d:Condition type must be bool in %s statements;", atLine, name);
     }
 }

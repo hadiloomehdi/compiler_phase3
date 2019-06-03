@@ -13,6 +13,6 @@ public class FieldClassNotDeclared extends CompileErrorException {
     }
 
     public String toString(){
-        return String.format("Error:Line:%d:There is no Field with name %s with in class %s", atLine, fieldName,className);
+        return String.format("Error:Line:%d:There is no Field with name %s with in class %s;", atLine, fieldName,className);
     }
 }
