@@ -15,4 +15,6 @@ public abstract class SymbolTableItem {
     {
         this.name = name;
     }
+
+    public int getIndex() { return 0; }
 }

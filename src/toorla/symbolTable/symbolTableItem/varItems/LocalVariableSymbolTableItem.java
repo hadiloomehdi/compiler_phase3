@@ -11,10 +11,9 @@ public class LocalVariableSymbolTableItem extends VarSymbolTableItem {
         this.index = index;
     }
 
-
+    @Override
     public int getIndex() {
         return index;
     }
-
 
 }

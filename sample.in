@@ -1,11 +1,24 @@
 entry class Hadi:
     function main() returns int:
-        var a = new Mahdi();
-        var b = new Mahdi();
-        var c = (a==b);
+        var a = new int[4];
+        var b = new int[2];
+        b = a;
+    end
+    function func(a: super) returns bool[]:
+        var b = new bool[3];
+        return b;
     end
 end
 
-class Mahdi:
+class super:
+    field x int;
+    function f() returns int:
+        var t = new sub();
+        var a = new Hadi();
+        var b = a.func(t);
+    end
+end
 
+class sub inherits super:
+    field y int;
 end

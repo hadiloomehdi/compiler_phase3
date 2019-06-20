@@ -54,7 +54,6 @@ public class TypeCheck implements Visitor<Type> {
     private boolean inFunc;
     private Integer loopDep;
     private ParentGraph parents;
-    private Integer numVar;
     Map<String, ClassDeclaration> classNameMap;
 
     public TypeCheck(Program program) {
@@ -73,7 +72,7 @@ public class TypeCheck implements Visitor<Type> {
             if(arrayType.getSingleType() instanceof IntType)
                 intArray = true;
         }
-        if( !(intArray || (type instanceof IntType) || (type instanceof StringType))){
+        if( !((type instanceof UndefinedType) || intArray || (type instanceof IntType) || (type instanceof StringType)) ) {
             PrintArg ee = new PrintArg(printLine.line,printLine.col);
             printLine.relatedErrors.add(ee);
         }
@@ -129,7 +128,7 @@ public class TypeCheck implements Visitor<Type> {
         } catch (ItemNotFoundException exc) {
             // nothing
         }
-        if (!isSubType(retType, exprType)) {
+        if (!isSubType(exprType, retType)) {
             ReturnType exc = new ReturnType(retType.toString(), returnStat.line, returnStat.col);
             returnStat.relatedErrors.add(exc);
         }
@@ -341,10 +340,25 @@ public class TypeCheck implements Visitor<Type> {
         return false;
     }
 
+    public Boolean isSameArrayType(Type a, Type b) {
+        if (!(a instanceof ArrayType && b instanceof ArrayType))
+            return false;
+        Type aSingle = ((ArrayType)a).getSingleType();
+        Type bSingle = ((ArrayType)b).getSingleType();
+        if (hasSamePrimitiveType(aSingle, bSingle))
+            return true;
+        if (aSingle instanceof UserDefinedType && bSingle instanceof UserDefinedType &&
+                ((UserDefinedType)aSingle).getClassDeclaration().getName().getName().equals(((UserDefinedType)bSingle).getClassDeclaration().getName().getName()))
+            return true;
+        return false;
+    }
+
     public Boolean isSubType(Type subType, Type superType) {
         if (subType instanceof UndefinedType || superType instanceof UndefinedType)
             return true;
         if (hasSamePrimitiveType(subType,superType))
+            return true;
+        if (isSameArrayType(subType, superType))
             return true;
         if (!(subType instanceof UserDefinedType && superType instanceof UserDefinedType))
             return false;
@@ -437,8 +451,8 @@ public class TypeCheck implements Visitor<Type> {
             for(int i=0; i < argTypes.size();i+=1){
                 Type subType = methodCall.getArgs().get(i).accept(this);
                 if(!isSubType(subType,argTypes.get(i))){
-                    AssignNotTypeCheck ee = new AssignNotTypeCheck(methodCall.line, methodCall.col);
-                    methodCall.relatedErrors.add(ee);
+                    MethodClassNotDeclared exc = new MethodClassNotDeclared(className, methodName, methodCall.line, methodCall.col);
+                    methodCall.relatedErrors.add(exc);
                     return new UndefinedType();
                 }
             }
@@ -493,13 +507,7 @@ public class TypeCheck implements Visitor<Type> {
             }
             else if (sti instanceof LocalVariableSymbolTableItem){
                 LocalVariableSymbolTableItem localVar = (LocalVariableSymbolTableItem) sti;
-                if (localVar.getIndex() > numVar) {
-                    VariableNotDeclared ee = new VariableNotDeclared(identifier.getName(),identifier.line,identifier.col);
-                    identifier.relatedErrors.add(ee);
-                    return new UndefinedType();
-                }
-                else
-                    return localVar.getVarType();
+                return localVar.getVarType();
             }
         } catch(ItemNotFoundException e){
             VariableNotDeclared ee = new VariableNotDeclared(identifier.getName(),identifier.line,identifier.col);
@@ -607,19 +615,19 @@ public class TypeCheck implements Visitor<Type> {
     public Type visit(LocalVarDef localVarDef) {
 //        localVarDef.getLocalVarName().accept(this);
         Type type = localVarDef.getInitialValue().accept(this);
+        SymbolTable.increaseVarDef();
         try{
             LocalVariableSymbolTableItem localVarSybmbolTable =  (LocalVariableSymbolTableItem)SymbolTable.top().get(VarSymbolTableItem.var_modifier + localVarDef.getLocalVarName().getName());
             localVarSybmbolTable.setVarType(type);
         }catch (Exception e){
             // dont occur
         }
-        numVar += 1;
         return new NoType();
     }
 
     public Boolean isLValue(Expression exp)
     {
-        if ((exp instanceof FieldCall && ((FieldCall)exp).getField().getName()!="length") || (exp instanceof Identifier && inFunc) || (exp instanceof ArrayCall))
+        if ((exp instanceof FieldCall && !(((FieldCall)exp).getField().getName().equals("length")) || (exp instanceof Identifier && inFunc) || (exp instanceof ArrayCall)))
             return true;
         else
             return false;
@@ -628,13 +636,13 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(IncStatement incStatement) {
         Type type = incStatement.getOperand().accept(this);
-        if (type instanceof UndefinedType)
-            return null;
         Expression exp = incStatement.getOperand();
         if (!isLValue(exp)) {
             RvalueDecInc ee = new RvalueDecInc("Inc", incStatement.line, incStatement.col);
             incStatement.relatedErrors.add(ee);
         }
+        if (type instanceof UndefinedType)
+            return null;
         if(!(type instanceof IntType )){
             UnsupportOperand ee = new UnsupportOperand(incStatement.toString(),incStatement.line,incStatement.col);
             incStatement.relatedErrors.add(ee);
@@ -645,13 +653,13 @@ public class TypeCheck implements Visitor<Type> {
     @Override
     public Type visit(DecStatement decStatement) {
         Type type = decStatement.getOperand().accept(this);
-        if (type instanceof UndefinedType)
-            return null;
         Expression exp = decStatement.getOperand();
         if (!isLValue(exp)) {
             RvalueDecInc ee = new RvalueDecInc("Dec",decStatement.line,decStatement.col);
             decStatement.relatedErrors.add(ee);
         }
+        if (type instanceof UndefinedType)
+            return null;
         if(!(type instanceof IntType )){
             UnsupportOperand ee = new UnsupportOperand(decStatement.toString(),decStatement.line,decStatement.col);
             decStatement.relatedErrors.add(ee);
@@ -671,13 +679,18 @@ public class TypeCheck implements Visitor<Type> {
     public Type visit(Assign assign) {
         Type lValueType = assign.getLvalue().accept(this);
         Type rValueType = assign.getRvalue().accept(this);
-        if (lValueType instanceof UndefinedType || rValueType instanceof UndefinedType)
-            return new NoType();
         Expression exp = assign.getLvalue();
         // lValue check
         if (!isLValue(exp)) {
             Rvalue ee = new Rvalue(assign.line,assign.col);
             assign.relatedErrors.add(ee);
+        }
+        if (lValueType instanceof UndefinedType || rValueType instanceof UndefinedType)
+            return new NoType();
+        // type check
+        if (!isSubType(rValueType, lValueType)) {
+            AssignNotTypeCheck exc = new AssignNotTypeCheck(assign.line,assign.col);
+            assign.relatedErrors.add(exc);
         }
         if (!(lValueType instanceof AnonymousType))
             return new NoType();
@@ -688,11 +701,6 @@ public class TypeCheck implements Visitor<Type> {
             varItem.setVarType(rValueType);
         } catch (ItemNotFoundException exc) {
             // Does not occur
-        }
-        // type check
-        if (!isSubType(rValueType, lValueType)) {
-            AssignNotTypeCheck exc = new AssignNotTypeCheck(assign.line,assign.col);
-            assign.relatedErrors.add(exc);
         }
         return new NoType();
     }
@@ -756,6 +764,7 @@ public class TypeCheck implements Visitor<Type> {
                 parameterDeclaration.relatedErrors.add(exc);
             }
         }
+        SymbolTable.increaseVarDef();
         Type type = parameterDeclaration.getType();
         try{
             LocalVariableSymbolTableItem localVarSybmbolTable =  (LocalVariableSymbolTableItem)SymbolTable.top().get(VarSymbolTableItem.var_modifier + parameterDeclaration.getIdentifier().getName());
@@ -768,12 +777,11 @@ public class TypeCheck implements Visitor<Type> {
 
     @Override
     public Type visit(MethodDeclaration methodDeclaration) {
-        numVar =0;
+        SymbolTable.resetVarDef();
         methodDeclaration.getName().accept(this);
         SymbolTable.pushFromQueue();
         for (ParameterDeclaration pd : methodDeclaration.getArgs()) {
             pd.accept(this);
-            numVar +=1;
         }
         inFunc = true;
         loopDep = 0;

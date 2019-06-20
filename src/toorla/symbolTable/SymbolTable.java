@@ -14,9 +14,14 @@ public class SymbolTable {
 
     private static SymbolTable top;
     public static SymbolTable root;
+    private static int varDefCounter = 0;
 
     private static Stack<SymbolTable> stack = new Stack<>();
     private static Queue<SymbolTable> queue = new LinkedList<>();
+
+    public static void increaseVarDef() { varDefCounter++; }
+
+    public static void resetVarDef() { varDefCounter = 0; }
 
     public static SymbolTable top() {
         return top;
@@ -76,10 +81,12 @@ public class SymbolTable {
         do {
             visitedSymbolTables.add( currentSymbolTable );
             SymbolTableItem value = currentSymbolTable.items.get(key);
-            if (value == null )
-                currentSymbolTable = currentSymbolTable.getPreSymbolTable();
-            else
-                return value;
+            if( value != null ) {
+                if (value.getIndex() <= SymbolTable.varDefCounter) {
+                    return value;
+                }
+            }
+            currentSymbolTable = currentSymbolTable.getPreSymbolTable();
         } while( currentSymbolTable != null &&
                 !visitedSymbolTables.contains( currentSymbolTable ) );
         throw new ItemNotFoundException();
